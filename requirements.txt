@@ -2,7 +2,7 @@ anthropic
 numpy
 openai
 together
-httpx==0.27
 a2a-sdk[http-server]>=0.3.0
 uvicorn
 python-dotenv
+toml>=0.10.2
