@@ -1,0 +1,59 @@
+# --- OS junk ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+*.egg
+*.log
+*.pot
+*.py,cover
+.coverage
+.cache/
+.tox/
+nosetests.xml
+coverage.xml
+htmlcov/
+*.mo
+*.pot
+
+# --- Environments ---
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+Pipfile.lock
+poetry.lock
+
+# --- Editors / IDEs ---
+.vscode/
+.idea/
+*.iml
+
+# --- Build / distribution ---
+build/
+dist/
+*.spec
+*.exe
+*.dll
+*.so
+*.dylib
+
+# --- Others ---
+*.bak
+*.swp
+*.tmp

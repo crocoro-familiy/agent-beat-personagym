@@ -1,0 +1,20 @@
+name                 = "PersonaGym Green Evaluator"
+description          = "Evaluates agent responses based on persona-specific tasks using PersonaGym"
+url                  = "http://localhost:9999"  # This will be updated by the main script at runtime
+host                 = "0.0.0.0"
+port                 = 9999
+version              = "1.0.0"
+
+# Note: The keys here must match the Python AgentCard parameters (snake_case)
+default_input_modes  = ["text/plain"]
+default_output_modes = ["text/plain"]
+
+[capabilities]
+streaming            = true
+
+[[skills]]
+id                   = "persona.evaluate"
+name                 = "Evaluate Persona Benchmark"
+description          = "Runs PersonaGym to assess adherence, toxicity, linguistic habits, expected action, and and action justification."
+tags                 = ["evaluation", "persona", "action"]
+examples             = ["Evaluate this persona: I am an Asian software engineer with 5 years of backend experience."]
