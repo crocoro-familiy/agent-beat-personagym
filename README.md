@@ -10,7 +10,7 @@ A Green Agent implementation built on top of the a2a framework for PersonaGym.
 
 ## Clone the Repository
 
-If you haven't already, clone the A2A Samples repository:
+If you haven't already, clone the repository:
 
 ```bash
 git clone https://github.com/crocoro-familiy/green-agent-personagym.git
