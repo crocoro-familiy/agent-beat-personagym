@@ -7,8 +7,6 @@ import anthropic
 
 from api_keys import *
 
-
-
 def run_model(
                     input_prompt = None,
                     persona = None,
