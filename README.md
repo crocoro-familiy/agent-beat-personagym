@@ -1,5 +1,5 @@
-# green-agent-personagym
-White and Green Agent implementation built on top of the a2a framework for PersonaGym.
+# green-white-agent-personagym
+Green and White Agent implementation built on top of the a2a framework for PersonaGym.
 
 ## Prerequisites
 
