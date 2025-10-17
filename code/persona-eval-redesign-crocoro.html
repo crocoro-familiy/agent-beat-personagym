@@ -322,6 +322,36 @@
       margin-top: auto;
       padding-top: 16px;
     }
+
+    /* Last score pills */
+    .last-score {
+      margin-top: 10px;
+      color: var(--text);
+      font-size: 13px;
+      background: rgba(16,185,129,0.08);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .last-score .title {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      margin: 4px 6px 0 0;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text);
+    }
+    .badge.primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: none;
+    }
     
     /* Actions Bar */
     .actions-bar {
@@ -596,8 +626,8 @@
       <div class="section-title">Configuration</div>
       <div class="form-grid">
         <div class="form-field">
-          <label class="form-label">A2A Service URL *</label>
-          <input type="text" class="form-input" placeholder="http://localhost:3000/" value="http://localhost:3000/">
+          <label class="form-label">Backend URL *</label>
+          <input id="backendUrl" type="text" class="form-input" placeholder="http://localhost:8080/" value="http://localhost:8080/">
         </div>
         <div class="form-field">
           <label class="form-label">Authorization Token (Optional)</label>
@@ -609,7 +639,7 @@
     <!-- Tests Header -->
     <div class="tests-header">
       <h2>🧪 Evaluation Tests</h2>
-      <p>Running all tests takes approximately 10 minutes. Use F12 to open developer tools for detailed logs and debugging information.</p>
+      <p>Running each tests takes approximately 4 minutes.</p>
     </div>
 
     <!-- Tests Grid -->
@@ -643,8 +673,10 @@
       </div>
       <div class="modal-body">
         <div class="score-content">
-          <div class="score-display" id="scoreBadge">3.8</div>
-          <div class="score-label">Expected Action Score</div>
+          <div class="score-display" id="scoreBadge">—</div>
+          <div class="score-label">Persona Score</div>
+          <div id="scoreDetails" style="max-width: 360px; margin: 0 auto; text-align: left; color: var(--text); font-size: 14px; line-height: 1.7;">
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -656,11 +688,9 @@
   <script>
     // Test data
     const testData = [
-      { id: 1, title: "Expected Action", desc: "Validates persona responses" },
-      { id: 2, title: "Toxicity", desc: "Checks for harmful content" },
-      { id: 3, title: "Linguistic Habits", desc: "Analyzes speech patterns" },
-      { id: 4, title: "Persona Consistency", desc: "Ensures character integrity" },
-      { id: 5, title: "Action Justification", desc: "Evaluates reasoning" },
+      { id: 1, title: "White Agent 1", desc: "Input a white agent url and run the evaluation" },
+      { id: 2, title: "White Agent 2", desc: "Input a white agent url and run the evaluation" },
+      { id: 3, title: "White Agent 3", desc: "Input a white agent url and run the evaluation" },
     ];
 
     const testsEl = document.getElementById('tests');
@@ -673,16 +703,22 @@
           <div class="test-number">${id}</div>
           <div class="test-info">
             <div class="test-title">${title}</div>
-            <div class="test-status">
+            <div class="test-status" id="status-${id}">
               <span class="status-dot"></span>
               Ready to run
             </div>
           </div>
         </div>
-        <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">${desc}</div>
+        <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 12px;">${desc}</div>
+        <div style="margin-bottom: 12px;">
+          <input id="white-agent-url-${id}" type="text" class="form-input" placeholder="Enter White Agent URL (e.g., http://localhost:8001)" value="${id===1 ? 'http://localhost:8001' : ''}" style="margin-bottom: 8px;">
+          <button id="connect-white-agent-${id}" class="btn" style="width: 100%; margin-bottom: 8px; background: var(--accent);">🔗 Connect to White Agent</button>
+          <div id="persona-display-${id}" style="display: none; background: var(--bg); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--text-muted);"></div>
+        </div>
         <div class="test-actions">
           <button class="btn btn-primary" data-run="${id}" style="width: 100%;">▶️ Run Test</button>
         </div>
+        <div id="last-score-${id}" class="last-score" style="display:none;"></div>
       `;
       return card;
     }
@@ -696,30 +732,9 @@
     const scoreBadge = document.getElementById('scoreBadge');
     let timers = [];
 
-    const SCORE = 3.8;
-    scoreBadge.textContent = SCORE.toFixed(1);
+    // no hardcoded chat content; we only show a simple running indicator
 
-    const chatScript = [
-      { type: 'personaHeader' },
-      { type: 'assistantQ', text: "In a classroom setting, if your teacher assigns a group project on AI applications and you notice your classmates struggling, what steps would you take to ensure everyone contributes effectively and the project is successful?", time: "9:41 AM" },
-      { type: 'userA', text: "I would organize a meeting, offer to explain any difficult concepts, and ensure tasks are evenly distributed based on each member's strengths.", time: "9:44 AM" },
-      { type: 'assistantQ', text: "During a library study session, if you encounter a complex problem in your robotics project and resources are limited, what actions would you take to resolve the issue and ensure progress?", time: "8:47 AM" },
-      { type: 'userA', text: "I would formulate a clear hypothesis, outline the experiment steps, conduct methodical testing, and document the process and findings in detail.", time: "8:48 AM" },
-      { type: 'assistantQ', text: "At a hackathon, if you identify a major flaw in your team's AI-based solution just hours before the deadline, what actions would you take to address the issue and improve the solution?", time: "9:51 AM" },
-    ];
-
-    function createPersonaHeader(){
-      const el = document.createElement('div');
-      el.className = 'persona-card msg';
-      el.innerHTML = `
-        <div class="avatar">👤</div>
-        <div class="persona-info">
-          <h4>Zhang Wei</h4>
-          <div>Male, 31 years old</div>
-          <div>Senior Software Engineer (Streaming Database Team)</div>
-        </div>`;
-      return el;
-    }
+    // removed persona header UI
 
     function createAssistantBubble(text, time){
       const wrap = document.createElement('div');
@@ -752,48 +767,16 @@
       modalBody.innerHTML = "";
       modal.style.display = 'flex';
       scoreModal.style.display = 'none';
-
-      const baseDelay = 300;
-      const stepDelay = 900;
-      const typingDelay = 700;
-
-      let t = baseDelay;
-      chatScript.forEach((m, i) => {
-        const isFirst = (i === 0);
-        if(!isFirst){
-          timers.push(setTimeout(()=> {
-            const ti = createTyping();
-            modalBody.appendChild(ti);
-            requestAnimationFrame(()=> ti.classList.add('show'));
-            timers.push(setTimeout(()=>{
-              ti.remove();
-              const node = buildNode(m);
-              modalBody.appendChild(node);
-              requestAnimationFrame(()=> node.classList.add('show'));
-              modalBody.scrollTop = modalBody.scrollHeight;
-              if(i === chatScript.length - 1){
-                setTimeout(showScore, 600);
-              }
-            }, typingDelay));
-          }, t));
-          t += stepDelay + typingDelay;
-        }else{
-          timers.push(setTimeout(()=> {
-            const node = buildNode(m);
-            modalBody.appendChild(node);
-            requestAnimationFrame(()=> node.classList.add('show'));
-          }, t));
-          t += stepDelay;
-        }
-      });
+      const ti = createTyping();
+      const label = document.createElement('div');
+      label.style.cssText = 'margin-top:12px;color:var(--text-muted);font-size:14px;';
+      label.textContent = 'Running...';
+      modalBody.appendChild(ti);
+      modalBody.appendChild(label);
+      requestAnimationFrame(()=> ti.classList.add('show'));
     }
 
-    function buildNode(m){
-      if(m.type === 'personaHeader') return createPersonaHeader();
-      if(m.type === 'assistantQ') return createAssistantBubble(m.text, m.time);
-      if(m.type === 'userA') return createUserRow(m.text, m.time);
-      return document.createTextNode('');
-    }
+    // buildNode removed; we don't render scripted chat
 
     function closeModal(){
       clearTimers();
@@ -801,11 +784,16 @@
     }
 
     function showScore(){
+      // hide running modal and show the score modal
+      clearTimers();
+      modal.style.display = 'none';
       scoreModal.style.display = 'flex';
     }
 
     function closeScore(){
+      // close score modal and ensure the running modal is also closed
       scoreModal.style.display = 'none';
+      modal.style.display = 'none';
     }
 
     function clearTimers(){
@@ -813,34 +801,164 @@
       timers = [];
     }
 
+    function getBackendUrl(){
+      const el = document.getElementById('backendUrl');
+      const v = (el?.value || '').trim();
+      return (v || 'http://localhost:8080').replace(/\/$/, '');
+    }
+
+    async function connectWhiteAgent(runId){
+      const urlInput = document.getElementById(`white-agent-url-${runId}`);
+      const connectBtn = document.getElementById(`connect-white-agent-${runId}`);
+      const personaDisplay = document.getElementById(`persona-display-${runId}`);
+      const whiteAgentUrl = (urlInput?.value || '').trim();
+      
+      if(!whiteAgentUrl){
+        alert('Please enter a White Agent URL.');
+        return;
+      }
+
+      if(connectBtn){ 
+        connectBtn.disabled = true; 
+        connectBtn.textContent = '⏳ Connecting...'; 
+      }
+
+      try {
+        const response = await fetch(`${getBackendUrl()}/connect_white_agent`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ white_agent_url: whiteAgentUrl })
+        });
+
+        if(!response.ok){
+          const error = await response.text();
+          throw new Error(`HTTP ${response.status}: ${error}`);
+        }
+
+        const data = await response.json();
+        if(data.success && data.persona_description){
+          personaDisplay.innerHTML = `<strong>Connected!</strong><br/>Persona: ${data.persona_description}`;
+          personaDisplay.style.display = 'block';
+          personaDisplay.style.color = 'var(--success)';
+          // Store the white agent URL for later use
+          personaDisplay.setAttribute('data-white-agent-url', whiteAgentUrl);
+        } else {
+          throw new Error('Failed to get persona description');
+        }
+      } catch (e){
+        alert(`Connection failed: ${e.message}`);
+        personaDisplay.innerHTML = `<strong>Connection failed:</strong> ${e.message}`;
+        personaDisplay.style.display = 'block';
+        personaDisplay.style.color = 'var(--danger)';
+      } finally {
+        if(connectBtn){ 
+          connectBtn.disabled = false; 
+          connectBtn.textContent = '🔗 Connect to White Agent'; 
+        }
+      }
+    }
+
+    async function runTest(runId){
+      const personaDisplay = document.getElementById(`persona-display-${runId}`);
+      const whiteAgentUrl = personaDisplay?.getAttribute('data-white-agent-url');
+      
+      if(!whiteAgentUrl){
+        alert('Please connect to a White Agent first.');
+        return;
+      }
+
+      const btn = document.querySelector(`[data-run="${runId}"]`);
+      if(btn){ btn.disabled = true; btn.textContent = '⏳ Running...'; }
+      const statusEl = document.getElementById(`status-${runId}`);
+      if(statusEl){ statusEl.innerHTML = '<span class="status-dot"></span> Running...'; }
+
+      openModal();
+
+      try {
+        // Use White Agent evaluation
+        const url = `${getBackendUrl()}/evaluate_with_white_agent_stream`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ white_agent_url: whiteAgentUrl })
+        });
+        if(!res.ok){ throw new Error(`HTTP ${res.status}`); }
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        const pushMsg = (el)=>{ el.classList.add('show'); modalBody.appendChild(el); modalBody.scrollTop = modalBody.scrollHeight; };
+        while(true){
+          const {value, done} = await reader.read();
+          if(done) break;
+          buffer += decoder.decode(value, {stream:true});
+          const parts = buffer.split('\n');
+          buffer = parts.pop();
+          for(const line of parts){
+            if(!line.trim()) continue;
+            let evt; try{ evt = JSON.parse(line); }catch{ continue; }
+            if(evt.type === 'settings'){
+              const el = createAssistantBubble(`<strong>Selected settings</strong>: ${Array.isArray(evt.data)?evt.data.join(', '):String(evt.data)}`, new Date().toLocaleTimeString());
+              pushMsg(el);
+            } else if(evt.type === 'questions'){
+              const qBlocks = [];
+              for(const [task, qs] of Object.entries(evt.data||{})){
+                qBlocks.push(`<div><strong>${task}</strong>: ${Array.isArray(qs)?qs.join(' | '):String(qs)}</div>`);
+              }
+              pushMsg(createAssistantBubble(`<div>Generated questions:</div>${qBlocks.join('')}`, new Date().toLocaleTimeString()));
+            } else if(evt.type === 'qa'){
+              pushMsg(createAssistantBubble(`<strong>${evt.task}</strong>: ${evt.question}`, new Date().toLocaleTimeString()));
+              pushMsg(createUserRow(evt.answer, new Date().toLocaleTimeString()));
+            } else if(evt.type === 'scores'){
+              const personaScore = typeof evt.personaScore === 'number' ? evt.personaScore : null;
+              scoreBadge.textContent = (personaScore != null) ? Number(personaScore).toFixed(1) : '—';
+              const details = document.getElementById('scoreDetails');
+              const entries = Object.entries(evt.scores||{});
+              if(details){
+                if(entries.length){
+                  const rows = entries.filter(([k])=>k!=='PersonaScore').map(([k,v])=>`<div><strong>${k}</strong>: ${Number(v).toFixed(2)}</div>`).join('');
+                  details.innerHTML = rows;
+                } else {
+                  details.innerHTML = '<div style="color: var(--text-muted);">No details found.</div>';
+                }
+              }
+              const last = document.getElementById(`last-score-${runId}`);
+              if(last){
+                const pills = [];
+                if(personaScore != null){
+                  pills.push(`<span class="badge primary">PersonaScore: ${Number(personaScore).toFixed(2)}</span>`);
+                }
+                if(entries.length){
+                  for(const [k,v] of entries){
+                    pills.push(`<span class="badge">${k}: ${Number(v).toFixed(2)}</span>`);
+                  }
+                }
+                last.innerHTML = `<span class="title">Last Score</span>${pills.join('')}`;
+                last.style.display = 'block';
+              }
+              if(statusEl){ statusEl.innerHTML = '<span class="status-dot"></span> Done'; }
+              showScore();
+            } else if(evt.type === 'error'){
+              alert(`Backend error: ${evt.error}`);
+            }
+          }
+        }
+      } catch (e){
+        alert(`Request failed: ${e}`);
+      } finally {
+        if(btn){ btn.disabled = false; btn.textContent = '▶️ Run Test'; }
+      }
+    }
+
     document.addEventListener('click', (e)=>{
       const runId = e.target.getAttribute?.('data-run');
-      if(runId){ openModal(); }
+      if(runId){ runTest(runId); }
+      
+      const connectId = e.target.id?.match(/^connect-white-agent-(\d+)$/);
+      if(connectId){ connectWhiteAgent(connectId[1]); }
+      
       const action = e.target.getAttribute?.('data-action');
       if(action){
-        if(action === 'run-all')
-        { 
-          console.log('"Run All Tests" button clicked. Sending request to BFF server...');
-          // Disable the button to prevent multiple clicks
-          e.target.disabled = true;
-          e.target.textContent = 'Running...';
-          
-          // Use the fetch API to call our new backend endpoint
-          fetch('/run-evaluation', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-              console.log('Response from BFF:', data);
-              alert('Evaluation started! Check the terminal for progress.');
-              e.target.disabled = false;
-              e.target.textContent = 'Run All Tests';
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('Failed to start evaluation. Check the console and terminals for errors.');
-              e.target.disabled = false;
-              e.target.textContent = 'Run All Tests';
-            });
-        }
+        if(action === 'run-all'){ alert('Run All Tests (stub)'); }
         if(action === 'share'){ alert('Share with Developer (stub)'); }
         if(action === 'clear'){ alert('Clear All Records (stub)'); }
       }

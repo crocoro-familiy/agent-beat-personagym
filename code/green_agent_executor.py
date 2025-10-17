@@ -61,7 +61,8 @@ class GreenAgentOrchestrator:
                     "params": {
                         "message": {
                             "role": "user",
-                            "parts": [{"kind": "text", "text": question}]
+                            "parts": [{"kind": "text", "text": question}],
+                            "messageId": str(uuid4())
                         }
                     }
                 }
