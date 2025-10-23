@@ -245,16 +245,46 @@ async def evaluate_with_white_agent_stream(request: Request) -> StreamingRespons
             yield (_json.dumps({"type": "qa_done"}) + "\n").encode()
             
             yield (_json.dumps({"type": "status", "message": "Step 4: Scoring responses..."}) + "\n").encode()
-            scores = score_answers(persona_description, task_to_qa)
-            persona_score = sum(scores.values()) / max(len(scores.keys()), 1)
+            result = score_answers(persona_description, task_to_qa, return_explanations=True)
             
-            # Save scores
+            # Calculate overall score
+            overall_scores = []
+            for task in result:
+                if result[task]["scores"]:
+                    overall_scores.append(sum(result[task]["scores"]) / len(result[task]["scores"]))
+            
+            if overall_scores:
+                overall = sum(overall_scores) / len(overall_scores)
+                result["PersonaScore"] = {"scores": [overall]}
+
+            # Save detailed scores
             _save_intermediate_result(session_id, "scores", {
-                "scores": scores,
-                "personaScore": persona_score
+                "scores": result,
+                "personaScore": result["PersonaScore"]
             })
             
-            yield (_json.dumps({"type": "scores", "scores": scores, "personaScore": persona_score}) + "\n").encode()
+            # Convert to format with scores and reasons for frontend display
+            display_scores = {}
+            for task, data in result.items():
+                if task != "PersonaScore" and data["scores"]:
+                    # Take only the first reason
+                    first_reason = data["reasons"][0] if data["reasons"] and len(data["reasons"]) > 0 else "No explanation provided"
+                    display_scores[task] = {
+                        "score": data["scores"][0],
+                        "reason": first_reason
+                    }
+                    print(f"DEBUG: {task} - Score: {data['scores'][0]}, Reason length: {len(first_reason)}, Reason preview: {first_reason[:100]}...")
+            
+            persona_score = result["PersonaScore"]["scores"][0] if result["PersonaScore"]["scores"] else 0
+            
+            print(f"DEBUG: Sending scores to frontend: {display_scores}")
+            if display_scores:
+                first_task = list(display_scores.keys())[0]
+                first_data = display_scores[first_task]
+                print(f"DEBUG: First task '{first_task}' data: {first_data}")
+                print(f"DEBUG: First task reason length: {len(first_data.get('reason', ''))}")
+                print(f"DEBUG: First task reason preview: {first_data.get('reason', '')[:200]}...")
+            yield (_json.dumps({"type": "scores", "scores": display_scores, "personaScore": persona_score}) + "\n").encode()
             yield (_json.dumps({"type": "status", "message": "Evaluation complete!"}) + "\n").encode()
             yield (_json.dumps({"type": "done", "white_agent_url": white_agent_url, "session_id": session_id}) + "\n").encode()
             

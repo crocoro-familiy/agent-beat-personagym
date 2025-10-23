@@ -909,13 +909,23 @@
               pushMsg(createAssistantBubble(`<strong>${evt.task}</strong>: ${evt.question}`, new Date().toLocaleTimeString()));
               pushMsg(createUserRow(evt.answer, new Date().toLocaleTimeString()));
             } else if(evt.type === 'scores'){
+              console.log('DEBUG: Received scores data:', evt);
+              console.log('DEBUG: Scores structure:', JSON.stringify(evt.scores, null, 2));
+              console.log('DEBUG: Full event data:', JSON.stringify(evt, null, 2));
               const personaScore = typeof evt.personaScore === 'number' ? evt.personaScore : null;
               scoreBadge.textContent = (personaScore != null) ? Number(personaScore).toFixed(1) : '—';
               const details = document.getElementById('scoreDetails');
               const entries = Object.entries(evt.scores||{});
+              console.log('DEBUG: Entries:', entries);
+              console.log('DEBUG: First entry structure:', entries[0] ? entries[0] : 'No entries');
               if(details){
                 if(entries.length){
-                  const rows = entries.filter(([k])=>k!=='PersonaScore').map(([k,v])=>`<div><strong>${k}</strong>: ${Number(v).toFixed(2)}</div>`).join('');
+                  const rows = entries.filter(([k])=>k!=='PersonaScore').map(([k,v])=>{
+                    const score = typeof v === 'object' && v.score ? v.score : v;
+                    const reason = typeof v === 'object' && v.reason ? v.reason : '';
+                    const reasonDisplay = reason ? `<div style="font-size: 0.9em; color: var(--text-muted); margin-top: 4px; font-style: italic;">${reason}</div>` : '';
+                    return `<div style="margin-bottom: 12px;"><strong>${k}</strong>: ${Number(score).toFixed(2)}${reasonDisplay}</div>`;
+                  }).join('');
                   details.innerHTML = rows;
                 } else {
                   details.innerHTML = '<div style="color: var(--text-muted);">No details found.</div>';
@@ -929,7 +939,8 @@
                 }
                 if(entries.length){
                   for(const [k,v] of entries){
-                    pills.push(`<span class="badge">${k}: ${Number(v).toFixed(2)}</span>`);
+                    const score = typeof v === 'object' && v.score ? v.score : v;
+                    pills.push(`<span class="badge">${k}: ${Number(score).toFixed(2)}</span>`);
                   }
                 }
                 last.innerHTML = `<span class="title">Last Score</span>${pills.join('')}`;
