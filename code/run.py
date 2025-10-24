@@ -109,6 +109,14 @@ def parse_rubric(rubric):
         return int(match_segment.group(1))
     return 0
 
+def parse_evaluation_text(evaluation_text):
+    """Extract the evaluation text (explanation) before the score"""
+    # Find text before "Therefore, the final score is"
+    match = re.search(r"^(.*?)Therefore, the final score is", evaluation_text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return evaluation_text.strip()
+
 def format_rubrics(persona, rubric, qa):
     sys_prompt = open(f'../prompts/rubric_grading/sys_prompt.txt').read()
     prompt_outline = open(f'../prompts/rubric_grading/prompt.txt').read()
@@ -139,8 +147,9 @@ def calculate_modified_average(score_list):
 
     return total_sum / mod_total if mod_total > 0 else total_sum
 
-def score_rubrics(sys_prompt, scoring_prompt, num_evals=1):
+def score_rubrics(sys_prompt, scoring_prompt, num_evals=1, return_explanations=True):
     scores = []
+    explanations = []
 
     for _ in range(num_evals):
         evaluator1 = run_model(input_prompt=scoring_prompt, temperature=0, top_p=0, model_card=EVAL_1, system = sys_prompt)
@@ -157,8 +166,30 @@ def score_rubrics(sys_prompt, scoring_prompt, num_evals=1):
 
         scores.append(score1)
         scores.append(score2)
+        
+        if return_explanations:
+            # Parse evaluation explanations
+            explanations1 = [parse_evaluation_text(eval_text) for eval_text in evaluator1]
+            explanations2 = [parse_evaluation_text(eval_text) for eval_text in evaluator2]
+            
+            explanations.append({
+                "evaluator1": {
+                    "scores": scores1,
+                    "explanations": explanations1
+                },
+                "evaluator2": {
+                    "scores": scores2,
+                    "explanations": explanations2
+                }
+            })
     
-    return sum(scores) / len(scores)
+    if return_explanations:
+        return {
+            "average_score": sum(scores) / len(scores),
+            "detailed_explanations": explanations
+        }
+    else:
+        return sum(scores) / len(scores)
 
 
 
@@ -176,21 +207,30 @@ def gen_answers(persona, questions, model):
     return task_to_qa
 
 
-def score_answers(persona, task_to_qa, score_example=True):
-    scores = {task:[] for task in task_to_qa}
+def score_answers(persona, task_to_qa, score_example=True, return_explanations=True):
+    result = {task: {"scores": [], "reasons": []} for task in task_to_qa}
+    
     for task in task_to_qa:
         for i in range(0, len(task_to_qa[task]), 5):
             selected_qa = task_to_qa[task][i: i + 5]
             rubric = open(f'../rubrics/{task}.txt').read()
             sys_prompt, scoring_prompt = format_rubrics(persona, rubric, selected_qa)
 
-            scores[task].append(score_rubrics(sys_prompt, scoring_prompt))
-
-    
-    for task in scores:
-        scores[task] = sum(scores[task]) / len(scores[task])
-    
-    return scores
+            if return_explanations:
+                score_result = score_rubrics(sys_prompt, scoring_prompt, return_explanations=True)
+                result[task]["scores"].append(score_result["average_score"])
+                
+                # Get all explanations from this batch
+                all_explanations = []
+                for eval_round in score_result["detailed_explanations"]:
+                    all_explanations.extend(eval_round["evaluator1"]["explanations"])
+                    all_explanations.extend(eval_round["evaluator2"]["explanations"])
+                result[task]["reasons"].extend(all_explanations)
+            else:
+                score = score_rubrics(sys_prompt, scoring_prompt)
+                result[task]["scores"].append(score)
+ 
+    return result
 
 
 def save_responses(persona, task_to_qa, model_name):
@@ -244,7 +284,7 @@ def load_responses(persona, saved_responses):
     return task_to_qa
     
 
-def main(persona, model, model_name=None, saved_questions=None, saved_responses=None):
+def main(persona, model, model_name=None, saved_questions=None, saved_responses=None, return_explanations=True):
     if saved_responses:
       task_to_qa = load_responses(persona, saved_responses)
 
@@ -258,19 +298,22 @@ def main(persona, model, model_name=None, saved_questions=None, saved_responses=
         
       task_to_qa = gen_answers(persona, questions, model)
         
-    scores = score_answers(persona, task_to_qa)
-    overall = 0
-    for task in scores:
-        overall += scores[task]
+    result = score_answers(persona, task_to_qa, return_explanations=return_explanations)
     
-    overall /= len(scores.keys())
-    scores["PersonaScore"] = overall
+    # Calculate overall score
+    overall_scores = []
+    for task in result:
+        if result[task]["scores"]:
+            overall_scores.append(sum(result[task]["scores"]) / len(result[task]["scores"]))
+    
+    if overall_scores:
+        overall = sum(overall_scores) / len(overall_scores)
+        result["PersonaScore"] = {"scores": [overall], "reasons": []}
 
     if model_name:
         save_responses(persona, task_to_qa, model_name)
 
-
-    return scores
+    return result
 
 
 if __name__ == "__main__":
