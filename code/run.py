@@ -29,11 +29,11 @@ def extract_list(original_string):
     return actual_list
 
 # Short-listing relevant scenarios/enviornments
-def select_settings(persona):
+def select_settings(persona, settings_options):
     settings_prompt = f'''
                         Given the following persona description, select the most relevant settings from the given settings options for the persona. Your output must only be the selected settings in a python list format with no other verbose.
                         Persona: {persona}
-                        Settings: {settings_list}
+                        Settings: {settings_options}
                         Selected Settings:
                       '''
     selected_settings  = run_model(input_prompt=settings_prompt, model_card=SETTINGS_MODEL)
@@ -207,13 +207,28 @@ def gen_answers(persona, questions, model):
     return task_to_qa
 
 
-def score_answers(persona, task_to_qa, score_example=True, return_explanations=True):
+def score_answers(persona, task_to_qa, rubrics_path="rubrics", score_example=True, return_explanations=True):
     result = {task: {"scores": [], "reasons": []} for task in task_to_qa}
     
     for task in task_to_qa:
+        # Check if there are any Q&A pairs for the task before proceeding
+        if not task_to_qa[task]:
+            continue
+
         for i in range(0, len(task_to_qa[task]), 5):
             selected_qa = task_to_qa[task][i: i + 5]
-            rubric = open(f'../rubrics/{task}.txt').read()
+            
+            # This is the key change: building the correct, full path
+            rubric_file_path = f"{rubrics_path}/{task}.txt"
+            print(f"DEBUG: Loading rubric from: {rubric_file_path}") # Added for debugging
+            
+            try:
+                with open(rubric_file_path, 'r') as f:
+                    rubric = f.read()
+            except FileNotFoundError:
+                print(f"ERROR: Rubric file not found at {rubric_file_path}. Skipping task '{task}'.")
+                continue
+
             sys_prompt, scoring_prompt = format_rubrics(persona, rubric, selected_qa)
 
             if return_explanations:
@@ -283,7 +298,30 @@ def load_responses(persona, saved_responses):
 
     return task_to_qa
     
+def mutate_question_with_llm(persona, setting, question_template, model_card="gpt-4o-mini"):
+    """
+    Uses an LLM to creatively rewrite a question template to fit a specific setting.
+    """
+    mutation_prompt = f'''
+        You are a creative assistant tasked with rewriting a question to fit a specific context.
+        Your goal is to make the question more natural and engaging by weaving the setting into the question's narrative.
+        
+        Persona to be tested: {persona}
+        Setting to incorporate: {setting}
+        Base Question Template: "{question_template}"
 
+        Your output must be ONLY the single, rewritten question as a string, with no other verbose text.
+        
+        Rewritten Question:
+      '''
+    
+    # Use the existing run_model utility to call the LLM
+    mutated_question = run_model(input_prompt=mutation_prompt, model_card=QUESTION_MODEL)
+    
+    # Clean up the output to ensure it's just a single string
+    return mutated_question.strip().replace('"', '')
+
+#Task To DO: We need revise this later for select_settings but not urgent.
 def main(persona, model, model_name=None, saved_questions=None, saved_responses=None, return_explanations=True):
     if saved_responses:
       task_to_qa = load_responses(persona, saved_responses)
@@ -293,7 +331,7 @@ def main(persona, model, model_name=None, saved_questions=None, saved_responses=
         questions = load_questions(persona, saved_questions)
         
       else:
-        settings = select_settings(persona)
+        settings = select_settings(persona, settings_list)
         questions = gen_questions(persona, settings)
         
       task_to_qa = gen_answers(persona, questions, model)

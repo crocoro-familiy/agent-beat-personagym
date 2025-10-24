@@ -908,6 +908,25 @@
             } else if(evt.type === 'qa'){
               pushMsg(createAssistantBubble(`<strong>${evt.task}</strong>: ${evt.question}`, new Date().toLocaleTimeString()));
               pushMsg(createUserRow(evt.answer, new Date().toLocaleTimeString()));
+            } else if(evt.type === 'specialist_detected'){
+              // Display specialist detection notification
+              const specialistMsg = createAssistantBubble(
+                `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">${evt.message}</div>
+                  <div style="font-size: 14px; opacity: 0.9;">Using specialized evaluation criteria for ${evt.domain}</div>
+                </div>`, 
+                new Date().toLocaleTimeString()
+              );
+              pushMsg(specialistMsg);
+            } else if(evt.type === 'general_evaluation'){
+              // Display general evaluation notification
+              const generalMsg = createAssistantBubble(
+                `<div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 15px; border-radius: 10px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <div style="font-size: 16px; font-weight: bold;">${evt.message}</div>
+                </div>`, 
+                new Date().toLocaleTimeString()
+              );
+              pushMsg(generalMsg);
             } else if(evt.type === 'scores'){
               console.log('DEBUG: Received scores data:', evt);
               console.log('DEBUG: Scores structure:', JSON.stringify(evt.scores, null, 2));

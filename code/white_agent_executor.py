@@ -48,6 +48,7 @@ class WhiteAgentExecutor(AgentExecutor):
             print(f"White Agent: Received question: '{question_text}'")
             agent = WhiteAgent(persona=self.persona, question=question_text)
             result = agent.invoke()
+            print(f"White Agent: Answer: '{result}'")
             await event_queue.enqueue_event(new_agent_text_message(result))
         except Exception as e:
             tb_str = traceback.format_exc()
