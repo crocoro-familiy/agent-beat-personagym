@@ -13,6 +13,7 @@
     "Bridge Inspection Site",
     "University Lecture Hall",
     "Job Interview Room",
-    "City Planning Committee Meeting"
-  ]
+    "City Planning Committee Meeting",
+  ],
+  "rubrics_file": "rubrics/civil_engineering_rubrics.json"
 }
