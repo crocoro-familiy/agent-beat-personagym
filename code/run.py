@@ -7,6 +7,15 @@ import json
 from personas import *
 import logging
 import re
+from pathlib import Path
+
+# This section makes your code aware of the new folder structure.
+CODE_DIR = Path(__file__).parent
+PROJECT_ROOT = CODE_DIR.parent
+
+# Define all configuration paths relative to the project root
+RUBRICS_DIR = PROJECT_ROOT / "rubrics"
+full_rubrics_path = str(RUBRICS_DIR / "general")
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -206,8 +215,9 @@ def gen_answers(persona, questions, model):
     
     return task_to_qa
 
-
-def score_answers(persona, task_to_qa, rubrics_path="rubrics", score_example=True, return_explanations=True):
+# The rubrics path is indeed specified in the green_agent_executor.py. 
+# The full_rubrics_path is added to increase the code readability.
+def score_answers(persona, task_to_qa, rubrics_path=full_rubrics_path, score_example=True, return_explanations=True):
     result = {task: {"scores": [], "reasons": []} for task in task_to_qa}
     
     for task in task_to_qa:
