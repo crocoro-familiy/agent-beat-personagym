@@ -176,19 +176,34 @@ def gen_answers(persona, questions, model):
     return task_to_qa
 
 
-def score_answers(persona, task_to_qa, score_example=True):
+def score_answers(persona, task_to_qa, rubrics_path="rubrics"):
     scores = {task:[] for task in task_to_qa}
     for task in task_to_qa:
+        # Check if there are any Q&A pairs for the task before proceeding
+        if not task_to_qa[task]:
+            continue
+
         for i in range(0, len(task_to_qa[task]), 5):
             selected_qa = task_to_qa[task][i: i + 5]
-            rubric = open(f'../rubrics/{task}.txt').read()
-            sys_prompt, scoring_prompt = format_rubrics(persona, rubric, selected_qa)
+            
+            # This is the key change: building the correct, full path
+            rubric_file_path = f"{rubrics_path}/{task}.txt"
+            print(f"DEBUG: Loading rubric from: {rubric_file_path}") # Added for debugging
+            
+            try:
+                with open(rubric_file_path, 'r') as f:
+                    rubric = f.read()
+            except FileNotFoundError:
+                print(f"ERROR: Rubric file not found at {rubric_file_path}. Skipping task '{task}'.")
+                continue
 
+            sys_prompt, scoring_prompt = format_rubrics(persona, rubric, selected_qa)
             scores[task].append(score_rubrics(sys_prompt, scoring_prompt))
 
     
     for task in scores:
-        scores[task] = sum(scores[task]) / len(scores[task])
+        if scores[task]: # Avoid division by zero if a task was skipped
+            scores[task] = sum(scores[task]) / len(scores[task])
     
     return scores
 
