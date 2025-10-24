@@ -1,98 +1,98 @@
-# White Agent GUI 使用说明
+# White Agent GUI Usage Guide
 
+## 🚀 Quick Start
 
-
-### 1. 启动服务
+### 1. Start Services
 
 ```bash
-# 1. 启动White Agent
+# 1. Start White Agent
 python set_white_agent.py
 
-# 2. 启动Green Agent  
+# 2. Start Green Agent  
 python set_green_agent.py
 
-# 3. 启动Web服务器
+# 3. Start Web Server
 python web_server.py
 ```
 
-### 2. 使用GUI
+### 2. Using the GUI
 
-1. **打开浏览器**访问 `http://localhost:8080`
+1. **Open Browser** and navigate to `http://localhost:8080`
 
-2. **连接White Agent**：
-   - 在"White Agent URL"输入框中输入White Agent地址（默认：`http://localhost:8001`）
-   - 点击"🔗 Connect to White Agent"按钮
-   - 系统会自动获取White Agent的persona description并显示
+2. **Connect to White Agent**:
+   - Enter White Agent URL in the input field (default: `http://localhost:8001`)
+   - Click "🔗 Connect to White Agent" button
+   - System will automatically fetch and display the White Agent's persona description
 
-3. **运行评估**：
-   - 连接成功后，点击"▶️ Run Test"按钮
-   - 系统会使用Green Agent对White Agent进行完整评估
-   - 实时显示评估进度和结果
+3. **Run Evaluation**:
+   - After successful connection, click "▶️ Run Test" button
+   - System will use Green Agent to perform complete evaluation of White Agent
+   - Real-time display of evaluation progress and results
 
-## 🔧 新增功能
+## 🔧 New Features
 
-### 后端API端点
+### Backend API Endpoints
 
-- **`POST /connect_white_agent`**: 连接White Agent并获取persona description
-- **`POST /evaluate_with_white_agent`**: 使用White Agent进行完整评估
-- **`POST /evaluate_with_white_agent_stream`**: 流式评估，实时显示进度
+- **`POST /connect_white_agent`**: Connect to White Agent and get persona description
+- **`POST /evaluate_with_white_agent`**: Perform complete evaluation using White Agent
+- **`POST /evaluate_with_white_agent_stream`**: Stream evaluation with real-time progress display
 
-### 前端界面更新
+### Frontend Interface Updates
 
-- **White Agent URL输入框**: 输入White Agent的地址
-- **连接按钮**: 测试与White Agent的连接
-- **Persona显示区域**: 显示从White Agent获取的persona description
-- **实时评估进度**: 显示评估过程的各个阶段
+- **White Agent URL Input**: Enter White Agent address
+- **Connection Button**: Test connection to White Agent
+- **Persona Display Area**: Show persona description fetched from White Agent
+- **Real-time Evaluation Progress**: Display various stages of evaluation process
 
-## 🔄 工作流程
+## 🔄 Workflow
 
 ```
-1. 用户输入White Agent URL
-2. GUI连接White Agent，获取persona description
-3. 用户点击"Run Test"
-4. GUI调用Green Agent进行评估
-5. Green Agent与White Agent交互，生成问题和评分
-6. 实时显示评估进度和最终结果
+1. User enters White Agent URL
+2. GUI connects to White Agent, fetches persona description
+3. User clicks "Run Test"
+4. GUI calls Green Agent for evaluation
+5. Green Agent interacts with White Agent, generates questions and scores
+6. Real-time display of evaluation progress and final results
 ```
 
-## 📊 评估结果
+## 📊 Evaluation Results
 
-评估结果包含以下维度：
-- **Expected Action**: 预期行为
-- **Toxicity**: 毒性检测
-- **Linguistic Habits**: 语言习惯
-- **Persona Consistency**: 人设一致性
-- **Action Justification**: 行为合理性
+Evaluation results include the following dimensions:
+- **Expected Action**: Expected behavior
+- **Toxicity**: Toxicity detection
+- **Linguistic Habits**: Language habits
+- **Persona Consistency**: Persona consistency
+- **Action Justification**: Action justification
 
-## 🛠️ 技术实现
+## 🛠️ Technical Implementation
 
-### 后端修改
-- 添加了White Agent连接功能
-- 集成了kick_off.py的评估逻辑
-- 支持流式评估进度显示
+### Backend Modifications
+- Added White Agent connection functionality
+- Integrated kick_off.py evaluation logic
+- Support for streaming evaluation progress display
 
-### 前端修改
-- 替换了persona输入框为White Agent URL输入
-- 添加了连接状态显示
-- 集成了实时评估进度显示
+### Frontend Modifications
+- Replaced persona input field with White Agent URL input
+- Added connection status display
+- Integrated real-time evaluation progress display
 
-## 🎉 优势
+## 🎉 Advantages
 
-1. **可视化操作**: 无需命令行操作
-2. **实时反馈**: 显示评估进度和状态
-3. **错误处理**: 完善的错误提示和异常处理
-4. **用户友好**: 直观的界面和操作流程
+1. **Visual Operation**: No command line operations required
+2. **Real-time Feedback**: Display evaluation progress and status
+3. **Error Handling**: Comprehensive error prompts and exception handling
+4. **User-friendly**: Intuitive interface and operation flow
 
-## 🔍 故障排除
+## 🔍 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **连接失败**: 确保White Agent正在运行
-2. **评估失败**: 确保Green Agent正在运行
-3. **端口冲突**: 检查端口是否被占用
+1. **Connection Failed**: Ensure White Agent is running
+2. **Evaluation Failed**: Ensure Green Agent is running
+3. **Port Conflict**: Check if ports are occupied
 
-### 调试步骤
+### Debug Steps
 
-1. 检查所有服务是否正常运行
-2. 查看浏览器控制台错误信息
-3. 检查后端日志输出
+1. Check if all services are running normally
+2. Check browser console for error messages
+3. Check backend log output
