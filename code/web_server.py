@@ -9,12 +9,46 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from run import select_settings, gen_questions, score_answers
-from eval_tasks import tasks
+from eval_tasks import tasks, settings_list
 from uuid import uuid4
 
 
 THIS_DIR = Path(__file__).parent
 HTML_FILE = THIS_DIR / "persona-eval-redesign-crocoro.html"
+PROJECT_ROOT = THIS_DIR.parent
+SPECIALISTS_DIR = PROJECT_ROOT / "specialists"
+RUBRICS_DIR = PROJECT_ROOT / "rubrics"
+
+# --- Specialist Registry Class ---
+class SpecialistRegistry:
+    """Discovers and manages all specialist configurations."""
+    def __init__(self, specialists_dir: Path):
+        self.specialists = []
+        self.load_specialists(specialists_dir)
+
+    def load_specialists(self, specialists_dir: Path):
+        if not specialists_dir.exists():
+            print(f"WARN: Specialists directory not found at {specialists_dir}")
+            return
+        for file_path in specialists_dir.glob("*.json"):
+            with open(file_path, 'r') as f:
+                try:
+                    specialist_config = json.load(f)
+                    self.specialists.append(specialist_config)
+                    print(f"INFO: Registered specialist '{specialist_config.get('domain_name', 'Unnamed')}'")
+                except json.JSONDecodeError as e:
+                    print(f"ERROR: Could not parse {file_path}. Invalid JSON: {e}")
+
+    def find_specialist(self, persona_text: str):
+        """Checks a persona for keywords to find a matching specialist."""
+        persona_lower = persona_text.lower()
+        for specialist in self.specialists:
+            if any(keyword in persona_lower for keyword in specialist.get("keywords", [])):
+                return specialist
+        return None
+
+# Initialize specialist registry
+specialist_registry = SpecialistRegistry(SPECIALISTS_DIR)
 A2A_BASE_URL = os.environ.get("A2A_BASE_URL", "http://localhost:9999")
 RESULTS_DIR = THIS_DIR / "agent_results"
 RESULTS_DIR.mkdir(exist_ok=True)
@@ -217,7 +251,7 @@ async def evaluate_with_white_agent_stream(request: Request) -> StreamingRespons
                     raise Exception("No persona_description found in White Agent")
             
             yield (_json.dumps({"type": "status", "message": "Step 1: Generating evaluation settings..."}) + "\n").encode()
-            settings = select_settings(persona_description)
+            settings = select_settings(persona_description, settings_list)
             
             # Save settings
             _save_intermediate_result(session_id, "settings", settings)
@@ -245,7 +279,31 @@ async def evaluate_with_white_agent_stream(request: Request) -> StreamingRespons
             yield (_json.dumps({"type": "qa_done"}) + "\n").encode()
             
             yield (_json.dumps({"type": "status", "message": "Step 4: Scoring responses..."}) + "\n").encode()
-            result = score_answers(persona_description, task_to_qa, return_explanations=True)
+            
+            # Determine rubrics path based on specialist detection
+            specialist = specialist_registry.find_specialist(persona_description)
+            if specialist and "rubrics_path" in specialist:
+                rubrics_folder_name = Path(specialist["rubrics_path"]).name
+                full_rubrics_path = str(RUBRICS_DIR / rubrics_folder_name)
+                print(f"INFO: Using specialist rubrics: {full_rubrics_path}")
+                
+                # Send specialist detection notification to frontend
+                yield (_json.dumps({
+                    "type": "specialist_detected", 
+                    "domain": specialist.get("domain_name", "Unknown"),
+                    "message": f"🎯 Specialist domain detected: {specialist.get('domain_name', 'Unknown')} - Using specialized evaluation criteria"
+                }) + "\n").encode()
+            else:
+                full_rubrics_path = str(RUBRICS_DIR / "general")
+                print(f"INFO: Using general rubrics: {full_rubrics_path}")
+                
+                # Send general evaluation notification to frontend
+                yield (_json.dumps({
+                    "type": "general_evaluation", 
+                    "message": "📋 Using general evaluation criteria"
+                }) + "\n").encode()
+            
+            result = score_answers(persona_description, task_to_qa, rubrics_path=full_rubrics_path, return_explanations=True)
             
             # Calculate overall score
             overall_scores = []
@@ -255,7 +313,7 @@ async def evaluate_with_white_agent_stream(request: Request) -> StreamingRespons
             
             if overall_scores:
                 overall = sum(overall_scores) / len(overall_scores)
-                result["PersonaScore"] = {"scores": [overall]}
+                result["PersonaScore"] = {"scores": [overall], "reasons": []}
 
             # Save detailed scores
             _save_intermediate_result(session_id, "scores", {
