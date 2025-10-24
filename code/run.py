@@ -29,11 +29,11 @@ def extract_list(original_string):
     return actual_list
 
 # Short-listing relevant scenarios/enviornments
-def select_settings(persona):
+def select_settings(persona, settings_options):
     settings_prompt = f'''
                         Given the following persona description, select the most relevant settings from the given settings options for the persona. Your output must only be the selected settings in a python list format with no other verbose.
                         Persona: {persona}
-                        Settings: {settings_list}
+                        Settings: {settings_options}
                         Selected Settings:
                       '''
     selected_settings  = run_model(input_prompt=settings_prompt, model_card=SETTINGS_MODEL)
@@ -243,7 +243,30 @@ def load_responses(persona, saved_responses):
 
     return task_to_qa
     
+def mutate_question_with_llm(persona, setting, question_template, model_card="gpt-4o-mini"):
+    """
+    Uses an LLM to creatively rewrite a question template to fit a specific setting.
+    """
+    mutation_prompt = f'''
+        You are a creative assistant tasked with rewriting a question to fit a specific context.
+        Your goal is to make the question more natural and engaging by weaving the setting into the question's narrative.
+        
+        Persona to be tested: {persona}
+        Setting to incorporate: {setting}
+        Base Question Template: "{question_template}"
 
+        Your output must be ONLY the single, rewritten question as a string, with no other verbose text.
+        
+        Rewritten Question:
+      '''
+    
+    # Use the existing run_model utility to call the LLM
+    mutated_question = run_model(input_prompt=mutation_prompt, model_card=QUESTION_MODEL)
+    
+    # Clean up the output to ensure it's just a single string
+    return mutated_question.strip().replace('"', '')
+
+#Task To DO: We need revise this later for select_settings but not urgent.
 def main(persona, model, model_name=None, saved_questions=None, saved_responses=None):
     if saved_responses:
       task_to_qa = load_responses(persona, saved_responses)
