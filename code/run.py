@@ -315,7 +315,7 @@ def mutate_question_with_llm(persona, setting, question_template, model_card="gp
     mutation_prompt = f'''
         You are a creative assistant tasked with rewriting a question to fit a specific context.
         Your goal is to make the question more natural and engaging by weaving the setting into the question's narrative.
-        
+        In case the setting is not quite consistent with the question template, generate one question that is consistent with the setting.
         Persona to be tested: {persona}
         Setting to incorporate: {setting}
         Base Question Template: "{question_template}"
