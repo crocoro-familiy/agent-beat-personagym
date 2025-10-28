@@ -14,6 +14,14 @@ streaming            = true
 [[skills]]
 id                   = "persona.evaluate"
 name                 = "Evaluate Persona Benchmark"
-description          = "Runs PersonaGym to assess adherence, toxicity, linguistic habits, expected action, and and action justification."
+description          = "Runs PersonaGym..."
 tags                 = ["evaluation", "persona", "action"]
-examples             = ["Evaluate this persona: I am an Asian software engineer with 5 years of backend experience."]
+# Add a clear example showing how the white_agent_url is passed
+examples = [
+"""
+Start PersonaGym evaluation for the agent located at:
+<white_agent_url>
+http://localhost:9002/
+</white_agent_url>
+"""
+]

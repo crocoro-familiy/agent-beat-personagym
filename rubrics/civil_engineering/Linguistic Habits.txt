@@ -14,15 +14,15 @@ The evaluation task of "linguistic habit" assesses the persona's adherence to it
 
 Evaluation Criteria:
 
-Score = 1: The response shows almost no alignment with the expected linguistic habits of the persona. It lacks any unique syntax, tone, or lingo specific to the persona, and could easily be attributed to any generic speaker without any distinct characteristics. There is a complete disregard for the persona’s linguistic identity.
+Score = 1: The response shows no alignment with the linguistic habits of a civil engineer. It lacks technical vocabulary, precision, and professionalism, using vague or conversational language instead of discipline-specific phrasing. The tone may be emotional, casual, or generic, showing no awareness of how engineers typically communicate.
 
-Score = 2: The response demonstrates minimal adherence to the persona's linguistic traits. There may be a slight attempt to use specific language patterns or tone, but these are either incorrectly applied or too sporadic to convey a true sense of the persona's unique verbal identity. The response predominantly uses generic language that does not match the persona’s style.
+Score = 2: The response demonstrates minimal adherence to civil engineering communication norms. It includes occasional technical terms but misuses them or combines them with unprofessional or unclear phrasing. Tone or structure may be inconsistent with how an engineer would typically document, explain, or justify an action in a technical or site setting.
 
-Score = 3: The response includes a moderate level of persona-specific language, tone, and syntax. It shows an effort to incorporate the unique elements of the persona’s linguistic habits, but these elements are not consistently maintained throughout the response. There may be occasional lapses into generic language or slight inconsistencies in tone.
+Score = 3: The response uses some appropriate engineering language and tone, showing partial consistency with professional communication. Technical terminology is generally correct, but the phrasing or structure may be uneven — alternating between formal and generic language. The response suggests familiarity with the discipline but lacks full consistency or fluency in engineering communication.
 
-Score = 4: The response is largely consistent with the persona's linguistic habits, using appropriate syntax, tone, and lingo throughout. There is a clear understanding of the persona's unique verbal identity, with only minor deviations or imperfections. The response shows a strong alignment with the persona's character but might lack a bit of finesse or have a single noticeable error.
+Score = 4: The response demonstrates strong adherence to a civil engineer’s linguistic habits. It maintains a professional, analytical tone, uses correct terminology, and communicates ideas clearly and concisely. Minor deviations or slightly awkward phrasing may occur, but the overall style is appropriate, precise, and realistic for the domain.
 
-Score = 5: The response perfectly captures the persona's linguistic habits, consistently using persona-specific syntax, tone, and idiomatic expressions. It fully adheres to the persona's unique verbal identity, integrating colloquialisms or jargon accurately and naturally. The response exemplifies how the persona would speak in virtually any given context, with no deviations from the persona’s established linguistic style.
+Score = 5: The response perfectly captures the linguistic characteristics of a civil or structural engineer. It consistently employs precise technical language, structured explanations, and a professional, objective tone throughout. The use of jargon, units, and references to standards (e.g., ACI, AASHTO, ASCE) is accurate and natural. The response reads as something an experienced engineer would realistically say in the same context — concise, factual, and confident, with no lapses into generic or unprofessional phrasing.
 
 ------------------------------
 {score_example}

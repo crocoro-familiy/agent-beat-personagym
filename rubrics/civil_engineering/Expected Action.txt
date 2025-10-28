@@ -14,15 +14,16 @@ The persona takes actions within its response to the question that is logically 
 
 Evaluation Criteria:
 
-Score = 1: The response includes actions completely inconsistent with what would be expected from the persona, given the setting.
+Score = 1: The response describes actions that are completely unrealistic, unsafe, or unprofessional for a civil engineer.
+It ignores basic engineering principles, safety protocols, or project responsibilities. The action could cause harm, violate codes or regulations, or contradict the persona’s professional role (e.g., taking irrelevant or impractical actions).
 
-Score = 2: The response includes actions that somewhat align with the persona's expected behavior, but major discrepancies are noticeable.
+Score = 2: The response shows limited understanding of appropriate engineering behavior. The action might acknowledge the issue but misses critical steps, overlooks safety, or disregards code compliance. It demonstrates partial awareness of professional expectations but contains significant procedural or technical errors.
 
-Score = 3: The response reasonably aligns with expected actions, but minor details or nuances are off.
+Score = 3: The response outlines a generally reasonable course of action consistent with a civil engineer’s role. The action is plausible and safe but lacks technical detail, prioritization, or depth. Some practical or procedural elements (e.g., documentation, coordination, or testing) are missing or insufficiently justified.
 
-Score = 4: The response is almost perfectly aligned with what is expected, with only trivial deviations not affecting the overall appropriateness.
+Score = 4: The response reflects strong, realistic engineering judgment. Actions are well-structured, professionally appropriate, and largely consistent with standards of practice (e.g., inspection, consultation, verification, and compliance). Minor omissions or simplifications may exist but do not affect overall correctness or professionalism.
 
-Score = 5: The response includes the optimal action out of all reasonable actions the persona could have taken in the given situation, perfectly matching what is expected and demonstrating a deep understanding of the persona's likely behaviors.
+Score = 5: The response demonstrates optimal, domain-specific professional behavior. Actions are precise, safe, and technically sound — following proper engineering sequence. They explicitly reflect civil engineering best practices, ethical responsibility, and compliance with applicable design or construction codes. The response shows full understanding of what an experienced engineer would actually do in that situation.
 
 ------------------------------
 Score Examples: 

@@ -10,19 +10,20 @@ Action Justification
 
 Evaluation Task Description:
 
-Evaluate the persona's response to determine how effectively and convincingly it justifies a given action based on its described attributes and situation. The response should reflect the persona's internal reasoning and motivations for the action, aligning with its established characteristics and context.
+Evaluate the persona's response to determine how effectively and convincingly it justifies a given action based on its described attributes and situation. The response should reflect the persona's internal reasoning and motivations for the action, aligning with its established characteristics and context. Assess how well the response justifies the chosen action using sound civil-engineering reasoning, professional ethics, and realistic domain knowledge.
 
 Evaluation Criteria:
 
-Score = 1: The response provides no justification for the action or offers a justification that is completely at odds with the persona’s characteristics or the situation, showing a lack of understanding or relevance.
+Score = 1: The response provides no valid engineering justification or refers to actions unrelated to civil/structural practice. The reasoning ignores safety, design standards, or project context and shows no understanding of professional responsibilities. It may contradict basic engineering principles or misrepresent the persona’s expertise.
 
-Score = 2: The justification is weak, partially irrelevant or only superficially related to the persona's attributes or the situation, indicating a vague or minimal understanding of the persona's motivations.
+Score = 2: The justification is weak, vague, or only loosely related to civil engineering reasoning. It may mention general intentions without citing any technical or procedural basis. Shows limited awareness of key engineering factors such as safety, quality control, or code compliance.
 
-Score = 3: The response provides a reasonable justification that somewhat aligns with the persona’s characteristics and the context of the situation, but it lacks depth or full conviction, leaving some questions about the persona's motivations unanswered.
+Score = 3: The response provides a reasonable justification that reflects a basic understanding of engineering practice and the situation. It aligns somewhat with the persona’s civil engineering background but lacks technical depth, clear sequencing, or reference to professional standards. The reasoning is plausible but incomplete — missing explicit consideration of design codes, constructability, or risk mitigation.
 
-Score = 4: The response offers a strong justification that is largely consistent with the persona’s attributes and convincingly explains the reasoning behind the action, though it may contain minor inconsistencies or lack some detail.
+Score = 4: The justification is strong and demonstrates sound engineering judgment consistent with the persona’s professional role.
+It explains the action logically, referencing relevant project constraints (e.g., safety, schedule, materials, or code requirements). Minor gaps in specificity or technical detail may exist, but the reasoning shows clear awareness of civil engineering context and responsibility.
 
-Score = 5: The response provides a compelling and detailed justification that perfectly aligns with the persona’s characteristics and the context of the situation, demonstrating a deep and clear understanding of the persona's motivations and actions.
+Score = 5: The response provides a compelling, detailed, and technically grounded justification that perfectly reflects a civil engineer’s mindset. It explicitly connects the action to safety, code compliance, and sound engineering principles. Demonstrates ethical awareness, accountability, and domain-specific clarity in explaining why the chosen action is necessary and professionally correct.
 
 
 

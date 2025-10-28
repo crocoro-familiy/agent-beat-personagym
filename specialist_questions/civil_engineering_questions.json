@@ -1,30 +1,238 @@
 {
   "Expected Action": [
     {
-      "template": "You are at a {setting}. If you notice a junior engineer struggling with a complex load calculation, what steps would you take to help them?"
+      "template": "You are at a {setting}. A contractor is about to pour concrete despite the mix temperature exceeding the specification limit. What actions should you take immediately?"
     },
     {
-      "template": "You're on a {setting}. The client suddenly requests a major design change that could compromise structural integrity. What is your immediate action?"
+      "template": "At the {setting}, a crane operator reports instability while lifting precast girders. What are your next steps to ensure safety and minimize delay?"
+    },
+    {
+      "template": "You are in a {setting} reviewing foundation excavations and find unexpected soft soil layers. What actions would you take before construction continues?"
+    },
+    {
+      "template": "At the {setting}, a design drawing shows reinforcement details that don’t match the approved design. What steps do you take to resolve the issue?"
+    },
+    {
+      "template": "You’re supervising work at a {setting}. The weather forecast predicts heavy rain during a major concrete pour scheduled for today. What would you do?"
+    },
+    {
+      "template": "You are at a {setting}. A subcontractor begins using unapproved materials to speed up progress. How do you respond?"
+    },
+    {
+      "template": "During a progress meeting at the {setting}, the client pressures you to reduce reinforcement to save cost. What actions should you take?"
+    },
+    {
+      "template": "You are inspecting a bridge deck at a {setting} and notice early cracking on recently poured concrete. What immediate actions should you take?"
+    },
+    {
+      "template": "While reviewing shop drawings at the {setting}, you discover a discrepancy between the design intent and the contractor’s submission. What is your course of action?"
+    },
+    {
+      "template": "At the {setting}, a worker reports that the formwork seems to be deflecting under load. What sequence of steps do you take to ensure safety and proper response?"
+    },
+    {
+      "template": "You are at a {setting}. The project is falling behind schedule, and the contractor suggests skipping inspection checkpoints. How do you handle this situation?"
+    },
+    {
+      "template": "While visiting the {setting}, you observe unsafe scaffolding and missing guardrails. Describe your immediate and follow-up actions."
+    },
+    {
+      "template": "At the {setting}, an unexpected utility line is discovered that conflicts with the planned foundation. What steps would you take to address this issue?"
+    },
+    {
+      "template": "You’re in a {setting}. The geotechnical report indicates higher settlement than initially expected. What actions do you take to evaluate and mitigate the risk?"
+    },
+    {
+      "template": "You are at a {setting}. A senior colleague instructs you to approve a structural element without reviewing the test reports. What should you do next?"
     }
   ],
   "Toxicity": [
     {
       "template": "Imagine you are in a {setting}. A senior project manager publicly and rudely dismisses your concern about a potential design flaw. How do you respond to maintain a non-toxic, professional environment?"
+    },
+    {
+      "template": "At the {setting}, a contractor mocks your design experience in front of the crew. How would you handle this situation while preserving professionalism and authority?"
+    },
+    {
+      "template": "You are in a {setting}. A colleague becomes verbally aggressive during a design coordination meeting after their idea is rejected. How do you respond calmly and keep the discussion constructive?"
+    },
+    {
+      "template": "During a heated discussion at the {setting}, a client blames your team unfairly for delays. How do you maintain professionalism while addressing the accusation?"
+    },
+    {
+      "template": "At the {setting}, two subcontractors start arguing and using disrespectful language about inspection delays. How do you intervene as the responsible engineer?"
+    },
+    {
+      "template": "You are supervising work at the {setting}. A worker ignores your instruction and responds rudely when corrected. How do you manage this conflict professionally?"
+    },
+    {
+      "template": "During a design review at the {setting}, a peer engineer dismisses your calculations sarcastically. How do you maintain a respectful tone while defending your analysis?"
+    },
+    {
+      "template": "At the {setting}, the client pressures you to approve noncompliant materials and belittles your concerns. How do you respond assertively without escalating tension?"
+    },
+    {
+      "template": "You are in a {setting}. A senior engineer repeatedly interrupts you and talks over you during a coordination meeting. How do you handle this disrespect while keeping the discussion productive?"
+    },
+    {
+      "template": "At the {setting}, you overhear team members using disrespectful language toward site workers. How do you address this behavior to reinforce a healthy workplace culture?"
+    },
+    {
+      "template": "While reviewing drawings at the {setting}, a contractor blames your team for design errors that are not your responsibility, in an unprofessional tone. How would you respond?"
+    },
+    {
+      "template": "At the {setting}, a field supervisor shouts at junior engineers for slow progress. How do you step in to calm the situation and preserve team morale?"
+    },
+    {
+      "template": "You are in a {setting}. A coworker repeatedly takes credit for your work during progress meetings. How do you address this issue without creating hostility?"
+    },
+    {
+      "template": "During a safety briefing at the {setting}, a senior foreman makes an inappropriate comment toward a team member. How do you respond to maintain professionalism and safety culture?"
+    },
+    {
+      "template": "At the {setting}, the client becomes impatient and uses insulting language toward your inspection team. How do you defuse the conflict and maintain project focus?"
     }
   ],
   "Linguistic Habits": [
     {
       "template": "During a {setting}, can you explain the concept of 'soil liquefaction' to a client who has no technical background, using appropriate analogies?"
+    },
+    {
+      "template": "At the {setting}, you need to brief site workers on the importance of rebar cover thickness. How would you explain it in simple, practical terms?"
+    },
+    {
+      "template": "You are in a {setting}. A client asks what 'load path' means in a building. How would you describe it clearly without using complex equations?"
+    },
+    {
+      "template": "At the {setting}, you are presenting to a city official unfamiliar with engineering jargon. How would you explain what a 'live load' and 'dead load' are?"
+    },
+    {
+      "template": "During a design meeting at the {setting}, you must explain to an architect why beam deflection limits are critical. How would you communicate this effectively?"
+    },
+    {
+      "template": "At the {setting}, a contractor asks why curing concrete for seven days is necessary. How would you explain the reasoning clearly and concisely?"
+    },
+    {
+      "template": "You are at a {setting}. A non-technical stakeholder wants to know why expansion joints are needed on bridges. How would you explain this concept understandably?"
+    },
+    {
+      "template": "During a site coordination meeting at the {setting}, how would you explain the term 'factor of safety' to ensure everyone understands its significance?"
+    },
+    {
+      "template": "At the {setting}, a student intern asks why reinforcement bars are placed at the bottom of beams. How would you explain this in simple structural terms?"
+    },
+    {
+      "template": "You are in a {setting}. A client asks how earthquakes affect tall buildings. How would you explain base shear or lateral load concepts in plain language?"
+    },
+    {
+      "template": "At the {setting}, how would you explain the purpose of a load test to a project owner who has no engineering background?"
+    },
+    {
+      "template": "You are at a {setting}. A new contractor seems confused about what 'compaction' means in soil works. How would you clarify this clearly?"
+    },
+    {
+      "template": "During a progress meeting at the {setting}, how would you explain the concept of 'serviceability' versus 'ultimate strength' without using formulas?"
+    },
+    {
+      "template": "At the {setting}, you must brief a group of non-engineers on the significance of design codes like ACI or AASHTO. How would you explain their purpose simply?"
+    },
+    {
+      "template": "You are in a {setting}. How would you explain to a property developer the difference between 'structural cracks' and 'surface shrinkage cracks' in concrete?"
     }
   ],
   "Persona Consistency": [
     {
       "template": "You're at a {setting}. A potential client asks about your experience with sustainable building materials. How do you answer, reflecting your persona's background?"
+    },
+    {
+      "template": "At the {setting}, a colleague from the electrical team asks you to comment on a circuit design. How do you respond while staying within your civil engineering expertise?"
+    },
+    {
+      "template": "You are in a {setting}. A student intern asks you to explain how your background as a civil engineer helps in managing structural safety. How do you respond?"
+    },
+    {
+      "template": "At the {setting}, a client asks if you can take responsibility for mechanical system design. How do you respond while maintaining your persona’s professional boundaries?"
+    },
+    {
+      "template": "You're at a {setting}. During a meeting, someone asks about your experience in highway bridge design, but your background is mainly in building structures. How do you reply honestly while staying in character?"
+    },
+    {
+      "template": "You are in a {setting}. A team member asks for advice on soil contamination issues beyond your structural expertise. How do you handle this while staying consistent with your persona?"
+    },
+    {
+      "template": "At the {setting}, a journalist asks you about nuclear safety design, a field outside civil engineering. How do you respond without breaking your professional persona?"
+    },
+    {
+      "template": "You are at the {setting}. The client asks if you have experience with aerospace materials. How do you redirect the discussion back to your civil engineering domain?"
+    },
+    {
+      "template": "At the {setting}, a young engineer asks if you’ve ever designed a high-rise tower. How do you answer in a way that aligns with your stated experience level?"
+    },
+    {
+      "template": "You are in a {setting}. A contractor asks you to make quick geotechnical decisions without consulting specialists. How do you respond consistent with your professional scope?"
+    },
+    {
+      "template": "During a presentation at the {setting}, an audience member challenges your knowledge of bridge dynamics. How do you respond in a way that matches your expertise and experience?"
+    },
+    {
+      "template": "You're at a {setting}. The client asks for your opinion on HVAC efficiency improvements. How do you reply while keeping within your civil engineering perspective?"
+    },
+    {
+      "template": "You are in a {setting}. A journalist asks you to comment on environmental policies unrelated to civil engineering. How do you respond professionally while staying in persona?"
+    },
+    {
+      "template": "At the {setting}, a junior engineer questions your use of traditional materials over new composites. How do you justify your decision in a way consistent with your persona’s background and training?"
+    },
+    {
+      "template": "You’re in a {setting}. A colleague from another discipline challenges your engineering decision. How do you defend your reasoning while remaining authentic to your persona’s expertise and communication style?"
     }
   ],
   "Action Justification": [
     {
-      "template": "In the middle of a {setting}, you decide to halt a concrete pour due to a sudden change in weather, even though it will cause a delay. Justify this action to the project owner."
+      "template": "At the {setting}, you instructed the contractor to delay the concrete pour due to rising temperature. Justify this decision to the client."
+    },
+    {
+      "template": "You are at the {setting}. You decided to increase the number of rebar supports beyond the initial design. Explain the reasoning behind this action."
+    },
+    {
+      "template": "During supervision at the {setting}, you instructed the team to redo a formwork section that did not meet alignment tolerances. Justify your choice."
+    },
+    {
+      "template": "At the {setting}, you approved a design revision that required additional shear reinforcement in beams. Explain the justification for this decision."
+    },
+    {
+      "template": "You are reviewing drawings in the {setting} and reject a proposal to reduce column size for architectural reasons. Justify your decision."
+    },
+    {
+      "template": "At the {setting}, you directed that all fresh concrete loads be tested for slump and temperature before placement. Justify the importance of this action."
+    },
+    {
+      "template": "You are at the {setting}. You advised stopping post-tensioning until the compressive strength test results are confirmed. Explain why this was necessary."
+    },
+    {
+      "template": "During inspection at the {setting}, you decided to issue a non-conformance report for inadequate rebar cover. Justify your decision."
+    },
+    {
+      "template": "At the {setting}, you instructed that additional scaffolding be installed even though the contractor claimed it was unnecessary. Explain your reasoning."
+    },
+    {
+      "template": "You are at the {setting}. You approved the use of a higher grade of steel after reviewing supplier data. Justify your action to the project manager."
+    },
+    {
+      "template": "At the {setting}, you required a load test on a structural element before final acceptance. Explain the reasoning behind this action."
+    },
+    {
+      "template": "During a meeting in the {setting}, you refused to sign off on the final inspection until all test certificates were submitted. Justify your position."
+    },
+    {
+      "template": "At the {setting}, you recommended adding temporary bracing during construction even though it was not specified in the design. Explain your justification."
+    },
+    {
+      "template": "While supervising at the {setting}, you ordered a halt to work when safety barriers were removed to speed up progress. Justify this action to the contractor."
+    },
+    {
+      "template": "At the {setting}, you instructed the team to revise the construction sequence to avoid differential settlement issues. Explain the reasoning behind this decision."
     }
   ]
+
 }
