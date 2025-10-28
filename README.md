@@ -1,4 +1,4 @@
-#agent-beat-personagym
+## agent-beat-personagym
 Green and White Agent implementation built on top of the a2a framework for PersonaGym, and integrate to the Agent-Beat platform.
 
 ## Prerequisites
