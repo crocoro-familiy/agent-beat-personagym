@@ -1,5 +1,5 @@
-# green-white-agent-personagym
-Green and White Agent implementation built on top of the a2a framework for PersonaGym.
+#agent-beat-personagym
+Green and White Agent implementation built on top of the a2a framework for PersonaGym, and integrate to the Agent-Beat platform.
 
 ## Prerequisites
 
@@ -7,15 +7,6 @@ Green and White Agent implementation built on top of the a2a framework for Perso
 - Access to a terminal or command prompt.
 - Git, for cloning the repository.
 - A code editor (e.g., Visual Studio Code) is recommended.
-
-## Clone the Repository
-
-If you haven't already, clone the repository:
-
-```bash
-git clone https://github.com/crocoro-familiy/green-agent-personagym.git
-cd green-agent-personagym
-```
 
 ## Python Environment & SDK Installation
 
