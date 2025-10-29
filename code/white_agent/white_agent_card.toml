@@ -18,4 +18,4 @@ tags                 = ["persona", "llm", "actor"]
 
 # Use the standard 'metadata' field for custom data
 [metadata]
-persona_description = "A 29-year-old Muslim woman from Malaysia, working as a civil engineer and advocating for women in STEM fields"
+persona_description = "A 29-year-old Muslim woman from Malaysia, working as a software developer and advocating for women in STEM fields"

@@ -1,147 +1,125 @@
+
 import logging
 import asyncio
 import multiprocessing
-import json # Keep json import for potential future needs
+import json
 from uuid import uuid4
-import time # Import time for potential delays if needed
-import signal # Import signal for better process termination handling
-import sys # Import sys to exit
+import time
+import signal
+import sys
+import os
 
-# Import the utility functions from my_a2a.py
-# Make sure my_a2a.py is in the same directory or accessible via PYTHONPATH
 try:
-    from my_a2a import wait_agent_ready, send_message, stream_events
-except ImportError:
-    print("ERROR: Could not import functions from my_a2a.py.")
-    print("Please ensure my_a2a.py is in the same directory as kick_off.py or in your PYTHONPATH.")
-    sys.exit(1)
-
-# Import the start functions from your refactored agent modules
-# Adjust the import paths based on your final directory structure
-# Assuming kick_off.py is in the project root, and agents are in code/green_agent and code/white_agent
-try:
-
-    from code.green_agent import start_green_agent
-    from code.white_agent import start_white_agent
+    from green_agent import start_green_agent
+    from white_agent import start_white_agent
+    from my_a2a import wait_agent_ready, send_message
 except ImportError as e:
-    print(f"ERROR: Could not import agent start functions: {e}")
-    print("Please ensure:")
-    print("1. Your agents have been refactored into agent.py/__init__.py structure.")
-    print("2. The import paths above correctly point to your agent modules.")
-    print("3. Necessary __init__.py files exist.")
-    print("4. If running from the project root, ensure 'code' is in your PYTHONPATH or use relative imports as shown.")
+    print(f"FATAL LAUNCHER ERROR: Could not import required modules: {e}")
+    print("This error is from 'launcher.py'. Ensure main.py is adding 'code/' and 'code/my_util/' to sys.path.")
     sys.exit(1)
 
+GREEN_HOST, GREEN_PORT = "0.0.0.0", 9999
+WHITE_HOST, WHITE_PORT = "0.0.0.0", 8001
+GREEN_URL = f'http://localhost:{GREEN_PORT}'
+WHITE_URL = f'http://localhost:{WHITE_PORT}'
 
-async def main() -> None:
+
+async def launch_evaluation():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-
-    green_host, green_port = "0.0.0.0", 9999
-    white_host, white_port = "0.0.0.0", 8001 
-    green_agent_url = f'http://localhost:{green_port}' 
-    white_agent_url_to_test = f'http://localhost:{white_port}'
 
     p_green = None
     p_white = None
 
     def cleanup_processes(signum, frame):
-        """Signal handler to terminate agent processes."""
         logger.info("Termination signal received. Cleaning up agent processes...")
         if p_white and p_white.is_alive():
-            logger.info("Terminating White Agent...")
             p_white.terminate()
             p_white.join(timeout=5)
         if p_green and p_green.is_alive():
-            logger.info("Terminating Green Agent...")
             p_green.terminate()
             p_green.join(timeout=5)
         logger.info("Cleanup complete.")
         sys.exit(0)
 
-    signal.signal(signal.SIGINT, cleanup_processes) 
-    signal.signal(signal.SIGTERM, cleanup_processes) 
+    signal.signal(signal.SIGINT, cleanup_processes)
+    signal.signal(signal.SIGTERM, cleanup_processes)
 
     try:
+        multiprocessing.set_start_method('spawn', force=True)
         logger.info("Launching Green Agent process...")
         p_green = multiprocessing.Process(
-            target=start_green_agent, args=(green_host, green_port), daemon=True
+            target=start_green_agent, args=(GREEN_HOST, GREEN_PORT), daemon=True
         )
         p_green.start()
-
         logger.info("Launching White Agent process...")
         p_white = multiprocessing.Process(
-            target=start_white_agent, args=(white_host, white_port), daemon=True
+            target=start_white_agent, args=(WHITE_HOST, WHITE_PORT), daemon=True
         )
         p_white.start()
 
-        logger.info(f"Waiting for Green Agent at {green_agent_url}...")
-        if not await wait_agent_ready(green_agent_url, timeout=30): # Increased timeout
-            logger.error(f"CRITICAL ERROR: Green Agent did not become ready at {green_agent_url}.")
+        logger.info(f"Waiting for Green Agent at {GREEN_URL}...")
+        if not await wait_agent_ready(GREEN_URL, timeout=30):
             raise RuntimeError("Green Agent failed to start.")
         logger.info("Green Agent is ready.")
-
-        logger.info(f"Waiting for White Agent at {white_agent_url_to_test}...")
-        if not await wait_agent_ready(white_agent_url_to_test, timeout=30): # Increased timeout
-            logger.error(f"CRITICAL ERROR: White Agent did not become ready at {white_agent_url_to_test}.")
+        logger.info(f"Waiting for White Agent at {WHITE_URL}...")
+        if not await wait_agent_ready(WHITE_URL, timeout=30):
             raise RuntimeError("White Agent failed to start.")
         logger.info("White Agent is ready.")
 
-        task_id = str(uuid4())
         initial_message_text = f"""
-            Start PersonaGym evaluation for the agent located at:
-            <white_agent_url>
-            {white_agent_url_to_test}
-            </white_agent_url>
+        Start PersonaGym evaluation for the agent located at:
+        <white_agent_url>
+        {WHITE_URL}
+        </white_agent_url>
         """
         logger.info("Formatted initial message with tags.")
 
-        logger.info(f"Sending evaluation task (ID: {task_id}) to Green Agent...")
+        logger.info(f"Sending evaluation task to Green Agent... This may take up to 15 minutes.")
+        
         send_response = await send_message(
-            url=green_agent_url,
+            url=GREEN_URL,
             message=initial_message_text,
-            task_id=task_id
+            task_id=None,
+            timeout=900.0 
         )
-        logger.info("Task successfully sent to Green Agent.")
+        
+        logger.info("Task successfully completed.")
 
-        logger.info("Streaming results from Green Agent...")
-        print("\n--- RESPONSE STREAM FROM GREEN AGENT ---")
-        async for event in stream_events(url=green_agent_url, task_id=task_id):
-            if event.kind == 'message' and event.message and event.message.parts:
-                for part in event.message.parts:
-                    if part.kind == 'text':
-                        print(part.text) 
-            elif event.kind == 'task_status':
-                 print(f"[Status Update: Task {event.task_id} is {event.status}]")
-                 if event.status in ('completed', 'failed', 'cancelled'):
-                      break 
-           
-
+        print("\n--- FINAL RESPONSE FROM GREEN AGENT ---")
+        try:
+            if hasattr(send_response, 'error') and send_response.error:
+                print(f"ERROR received from agent: {send_response.error.message}")
+            elif hasattr(send_response, 'result') and send_response.result and send_response.result.parts:
+                final_text = send_response.result.parts[0].text
+                print(final_text)
+            else:
+                print("Received unknown response:")
+                print(send_response.model_dump_json(indent=2))
+                
+        except Exception as e:
+            print(f"Could not parse the final response. Error: {e}")
+            print(send_response.model_dump_json(indent=2))
+            
     except Exception as e:
-        logger.error(f"An error occurred during kickoff: {e}", exc_info=True)
+        logger.error(f"An error occurred during launch: {e}", exc_info=True)
 
     finally:
-        print("--- END OF RESPONSE STREAM ---\n")
+        print("--- END OF RESPONSE ---\n")
         logger.info("Evaluation attempt finished. Terminating agent processes...")
         if p_white and p_white.is_alive():
             logger.info("Terminating White Agent...")
-            p_white.terminate() 
-            p_white.join(timeout=5) 
-            if p_white.is_alive():
-                logger.warning("White Agent did not terminate gracefully. Forcing kill.")
-                p_white.kill() 
+            p_white.terminate()
+            p_white.join(timeout=5)
+            if p_white.is_alive(): p_white.kill()
         if p_green and p_green.is_alive():
             logger.info("Terminating Green Agent...")
             p_green.terminate()
             p_green.join(timeout=5)
-            if p_green.is_alive():
-                logger.warning("Green Agent did not terminate gracefully. Forcing kill.")
-                p_green.kill()
-        logger.info("Kickoff script finished.")
-
+            if p_green.is_alive(): p_green.kill()
+        
+        logger.info("Launcher script finished.")
 
 if __name__ == "__main__":
-    multiprocessing.freeze_support()
-    multiprocessing.set_start_method('spawn', force=True) # Use 'spawn' for more safety
-
-    asyncio.run(main())
+    multiprocessing.set_start_method('spawn', force=True)
+    asyncio.run(launch_evaluation())

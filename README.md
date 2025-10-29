@@ -1,5 +1,5 @@
 ## agent-beat-personagym
-Green and White Agent implementation built on top of the a2a framework for PersonaGym, and integrate to the Agent-Beat platform.
+Green and White Agent implementation built on top of the a2a framework for PersonaGym, and integrate to the Agent-Beat platform. The Persona Gym codebase is refactored to reflect the suggested format by the AgentBeat developer. 
 
 ## Prerequisites
 
@@ -45,3 +45,11 @@ python -c "import a2a; print('A2A SDK imported successfully')"
 ```
 
 If this command runs without error and prints the success message, your environment is set up correctly.
+
+## Run the code
+
+To run and test the code, please use the following command:
+
+```bash
+python python main.py launch
+```
