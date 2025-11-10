@@ -7,3 +7,4 @@ uvicorn
 python-dotenv
 toml>=0.10.2
 python-dotenv
+earthshaker

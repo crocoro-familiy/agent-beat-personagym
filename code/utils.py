@@ -2,7 +2,6 @@ import time
 import openai
 from openai import OpenAI
 import numpy as np
-from together import Together
 import anthropic
 
 from api_keys import *
