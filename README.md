@@ -3,7 +3,7 @@ Green and White Agent implementation built on top of the a2a framework for Perso
 
 ## Prerequisites
 
-- Python 3.10 or higher.
+- Python 3.13 or higher (the latest earthshaker requirement)
 - Access to a terminal or command prompt.
 - Git, for cloning the repository.
 - A code editor (e.g., Visual Studio Code) is recommended.
@@ -46,10 +46,22 @@ python -c "import a2a; print('A2A SDK imported successfully')"
 
 If this command runs without error and prints the success message, your environment is set up correctly.
 
-## Run the code
+## Run the code (command prompt)
 
-To run and test the code, please use the following command:
+To run and test the code in the command prompt, please use the following command:
 
 ```bash
 python python main.py launch
 ```
+
+Please remember to set up your API keys properly.
+
+## Launch the AgentBeat controller 
+
+Run the following command to start the controller:
+```
+agentbeats run_ctrl
+```
+Once it’s running, you should see a local management page similar to the one shown below. From there, you can also access your agent through the proxy URL provided by the controller — for example, try checking whether `.well-known/agent-card.json` can be successfully fetched.
+
+![Green Agent Host screenshot](image/green_agent_host.png "Green Agent Host")
