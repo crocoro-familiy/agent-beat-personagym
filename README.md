@@ -51,12 +51,12 @@ If this command runs without error and prints the success message, your environm
 To run and test the Persona Agent in the command prompt, please use the following command:
 
 ```bash
-python python main.py launch
+python main.py launch
 ```
 Note that we also provide a static benchmark for testing a general LLM model, please use the following to run static benchmark:
 
 ```bash
-python python main.py launch --static
+python main.py launch --static
 ```
 
 Please remember to set up your API keys properly.
