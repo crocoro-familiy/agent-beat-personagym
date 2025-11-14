@@ -1,0 +1,21 @@
+# white_agent/white_agent_card.toml
+
+name                 = "Persona Actor (White Agent)"
+description          = "An agent that adopts and responds as a specific persona."
+url                  = "http://localhost:8001"
+version              = "1.0.0"
+default_input_modes  = ["application/json"]
+default_output_modes = ["application/json"]
+
+[capabilities]
+streaming            = false
+
+[[skills]]
+id                   = "persona.respond"
+name                 = "Respond as Persona"
+description          = "Receives a question and provides an in-character response."
+tags                 = ["persona", "llm", "actor"]
+
+# Use the standard 'metadata' field for custom data
+[metadata]
+persona_description = "A 17-year-old high school student from New Zealand, excelling in robotics and aspiring to study artificial intelligence."

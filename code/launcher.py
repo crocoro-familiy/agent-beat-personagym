@@ -1,4 +1,3 @@
-
 import logging
 import asyncio
 import multiprocessing
@@ -10,8 +9,6 @@ import sys
 import os
 
 try:
-    from green_agent import start_green_agent
-    from white_agent import start_white_agent
     from my_a2a import wait_agent_ready, send_message
 except ImportError as e:
     print(f"FATAL LAUNCHER ERROR: Could not import required modules: {e}")
@@ -24,7 +21,7 @@ GREEN_URL = f'http://localhost:{GREEN_PORT}'
 WHITE_URL = f'http://localhost:{WHITE_PORT}'
 
 
-async def launch_evaluation():
+async def launch_evaluation(static_mode: bool = False):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
@@ -47,14 +44,39 @@ async def launch_evaluation():
 
     try:
         multiprocessing.set_start_method('spawn', force=True)
-        logger.info("Launching Green Agent process...")
+        
+        # Determine which Green Agent to launch
+        if static_mode:
+            from green_agent_static import start_green_agent_static
+            from white_agent_static import start_white_agent_static
+            logger.info("Launching STATIC Green Agent (Benchmark Mode)...")
+            target_green_func = start_green_agent_static
+            target_white_func = start_white_agent_static
+            # Timeout: We reserve 4 hrs fo general LLM test, but to run full 200 persona, 10000 questions, requires around 2 days.
+            current_timeout = 14400.0 
+        else:
+            from green_agent import start_green_agent
+            from white_agent import start_white_agent
+            logger.info("Launching DYNAMIC Green Agent...")
+            target_green_func = start_green_agent
+            target_white_func = start_white_agent
+            # Timeout: 15 mins for Persona Agent
+            current_timeout = 900.0
+
+        # Launch Green Agent
         p_green = multiprocessing.Process(
-            target=start_green_agent, args=(GREEN_HOST, GREEN_PORT), daemon=True
+            target=target_green_func,
+            kwargs={'host': GREEN_HOST, 'port': GREEN_PORT},
+            daemon=True
         )
         p_green.start()
+
+        # Launch White Agent
         logger.info("Launching White Agent process...")
         p_white = multiprocessing.Process(
-            target=start_white_agent, args=(WHITE_HOST, WHITE_PORT), daemon=True
+            target=target_white_func, 
+            kwargs={'host': WHITE_HOST, 'port': WHITE_PORT}, 
+            daemon=True
         )
         p_white.start()
 
@@ -62,6 +84,7 @@ async def launch_evaluation():
         if not await wait_agent_ready(GREEN_URL, timeout=30):
             raise RuntimeError("Green Agent failed to start.")
         logger.info("Green Agent is ready.")
+
         logger.info(f"Waiting for White Agent at {WHITE_URL}...")
         if not await wait_agent_ready(WHITE_URL, timeout=30):
             raise RuntimeError("White Agent failed to start.")
@@ -75,13 +98,13 @@ async def launch_evaluation():
         """
         logger.info("Formatted initial message with tags.")
 
-        logger.info(f"Sending evaluation task to Green Agent... This may take up to 15 minutes.")
+        logger.info(f"Sending evaluation task to Green Agent... Timeout set to {current_timeout}s")
         
         send_response = await send_message(
             url=GREEN_URL,
             message=initial_message_text,
             task_id=None,
-            timeout=900.0 
+            timeout=current_timeout
         )
         
         logger.info("Task successfully completed.")
@@ -121,5 +144,4 @@ async def launch_evaluation():
         logger.info("Launcher script finished.")
 
 if __name__ == "__main__":
-    multiprocessing.set_start_method('spawn', force=True)
-    asyncio.run(launch_evaluation())
+    asyncio.run(launch_evaluation(static_mode=False))

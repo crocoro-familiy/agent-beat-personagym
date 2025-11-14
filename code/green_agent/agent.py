@@ -103,7 +103,7 @@ class GreenAgentOrchestrator:
         else:
             print("INFO: No specialist detected. Using dynamic question generation.")
             selected_settings = await loop.run_in_executor(None, select_settings, persona, default_settings_list)
-            questions_dict = await loop.run_in_executor(None, gen_questions, persona, selected_settings, 5)
+            questions_dict = await loop.run_in_executor(None, gen_questions, persona, selected_settings, 1)
 
         print("Green Agent: Finalized questions.")
         
