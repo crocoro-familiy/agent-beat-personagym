@@ -28,7 +28,7 @@ SETTINGS_MODEL = "gpt-4o-mini"
 QUESTION_MODEL = "gpt-4o-mini"
 EXAMPLE_MODEL = "gpt-4o-mini"
 EVAL_1 = "gpt-4o-mini"
-EVAL_2 = 'gpt-4o-mini'
+EVAL_2 = 'claude-3-haiku-20240307'
 
 def extract_list(original_string):
     list_string = original_string.replace("```python", "")
@@ -277,7 +277,8 @@ def save_scores(save_name, scores):
       
       
 def load_questions(persona, saved_questions):
-    dir = f"../questions/{saved_questions}"
+    base_questions_dir = PROJECT_ROOT / "questions"
+    dir = base_questions_dir / saved_questions
     if not os.path.exists(dir):
         print(f"No questions directory {dir}")
         exit(0)

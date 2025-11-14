@@ -27,7 +27,7 @@ def openai_chat_gen(input_prompt = None,
                     persona = None,
                     apikey = OPENAI_API_KEY,
                     model_card = 'gpt-3.5-turbo',
-                    temperature = 0.9, 
+                    temperature = 0.0, 
                     top_p = 0.9,
                     max_tokens = 4000,
                     max_attempt = 3,
@@ -79,58 +79,80 @@ def openai_chat_gen(input_prompt = None,
 
     return 'Error'
 
-def claude_chat_gen(input_prompt,
-                    persona = None,
-                    apikey = CLAUDE_API_KEY,
-                    model_card = 'claude-3-haiku-20240307',
-                    temperature = 0, 
-                    max_tokens = 4000,
-                    max_attempt = 3,
-                    time_interval = 5
-                   ):
+def claude_chat_gen(
+    input_prompt,
+    persona=None,
+    apikey=CLAUDE_API_KEY,
+    model_card="claude-3-5-haiku-20241022",
+    temperature=0,
+    top_p=None,
+    max_tokens=4000,
+    max_attempt=3,
+    time_interval=5,
+    system=None,
+):
+    assert isinstance(input_prompt, str), "claude api does not support batch inference."
 
-    assert (type(input_prompt) == str
-            ), "claude api does not support batch inference."
-
-  
     client = anthropic.Anthropic(api_key=apikey)
 
+    system_parts = []
+    if system:
+        system_parts.append(system)
     if persona:
-        persona_prompt = f"Adopt the identity of {persona}. Answer the questions while staying in strict accordance with the nature of this identity."
-    
-    message=[{"role": "user", "content": input_prompt}]
-    
-    while max_attempt > 0:
+        persona_prompt = (
+            f"Adopt the identity of {persona}. "
+            "Answer the questions while staying in strict accordance with the nature of this identity."
+        )
+        system_parts.append(persona_prompt)
 
+    system_prompt = "\n\n".join(system_parts) if system_parts else None
+
+    messages = [{"role": "user", "content": input_prompt}]
+
+    attempt = 0
+    while attempt < max_attempt:
+        attempt += 1
         try:
-            if persona:
-                response = client.messages.create(
-                    model= model_card,
-                    system = persona_prompt,
-                    messages = message,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
-                return response.content[0].text
+            kwargs = {
+                "model": model_card,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+            if system_prompt:
+                kwargs["system"] = system_prompt
+
+            response = client.messages.create(**kwargs)
+            return response.content[0].text
+
+        except HTTPStatusError as e:
+            status = e.response.status_code
+            print(f"[Attempt {attempt}] HTTP error: {status} - {e}")
+
+            # Transient server issues: retry
+            if status in (500, 502, 503, 504, 529):
+                if attempt < max_attempt:
+                    sleep_s = time_interval * attempt  # simple backoff
+                    print(f"Transient error, retrying in {sleep_s} seconds...")
+                    time.sleep(sleep_s)
+                    continue
+                else:
+                    break
             else:
-                response = client.messages.create(
-                    model= model_card,
-                    messages = message,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
-                return response.content[0].text
+                # Non-retryable HTTP error (4xx etc.)
+                break
 
         except Exception as e:
+            print(f"[Attempt {attempt}] Exception Raised:", e)
+            if attempt < max_attempt:
+                sleep_s = time_interval * attempt
+                print(f"Retrying in {sleep_s} seconds...")
+                time.sleep(sleep_s)
+                continue
+            else:
+                break
 
-            print('Exception Raised: ', e)
-
-            max_attempt -= 1
-            time.sleep(time_interval)
-
-            print('Retrying left: ', max_attempt)
-
-    return 'As an AI Model I cannot answer'
+    return "As an AI Model I cannot answer"
 
 
 def llama_chat_gen(input_prompt,
