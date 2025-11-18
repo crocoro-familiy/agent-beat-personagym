@@ -14,6 +14,12 @@ def green():
     print("Starting Green Agent...")
     start_green_agent()
 
+@app.command()
+def green_static():
+    from green_agent import start_green_agent_static
+    """Start the Green Agent (PersonaGym evaluator) server."""
+    print("Starting Green Agent (Static)...")
+    start_green_agent_static()
 
 @app.command()
 def white():

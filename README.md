@@ -114,3 +114,12 @@ Once it’s running, you should see a local management page similar to the one s
 
 ![Green Agent Host screenshot](image/green_agent_host.png "Green Agent Host")
 
+In case you want to use the Green Agent and the static benchmark to test a general LLM model, please modify the `run.sh` with the following command:
+```
+python main.py green_static
+```
+Run the following command to start the controller again:
+```
+agentbeats run_ctrl
+```
+This time the Green Agent will use the static benchmark.
