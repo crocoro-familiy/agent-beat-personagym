@@ -1,20 +1,43 @@
 {
   "domain_name": "integrated circuit",
-  
+
   "keywords": [
     "IC designer",
     "IC engineer",
-    "...",
-    "..."
+    "analog IC",
+    "mixed-signal IC",
+    "LDO design",
+    "CMRR",
+    "phase margin",
+    "loop stability",
+    "current mirror",
+    "bias network",
+    "PPA (power, performance, area)",
+    "parasitic coupling",
+    "layout parasitics",
+    "post-layout simulation",
+    "extracted netlist",
+    "calibration circuit",
+    "ESD verification",
+    "tapeout signoff",
+    "inverse design",
+    "CAD automation"
   ],
+
   "static_questions_file": "specialist_questions/integrated_circuit_questions.json",
+
   "settings_list": [
-    "IC lab",
-    "IC office",
-    "....",
-    "...",
-    "....",
-    "..."
+    "analog IC design lab",
+    "EDA workstation in the design office",
+    "layout engineer’s desk during signoff week",
+    "post-layout simulation workstation",
+    "IC design review meeting room",
+    "client design discussion room",
+    "tapeout war room",
+    "measurement and bring-up lab",
+    "university microelectronics research lab",
+    "remote project review call"
   ],
+
   "rubrics_path": "rubrics/integrated_circuit"
 }
