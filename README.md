@@ -46,6 +46,43 @@ python -c "import a2a; print('A2A SDK imported successfully')"
 
 If this command runs without error and prints the success message, your environment is set up correctly.
 
+## Project Structure
+
+```
+project-root/
+├── code/                     # Core agent logic, scripts, and HTML tools
+│   ├── green_agent/
+│   ├── white_agent/
+│   ├── ...
+│   └── ...
+├── image/                    # Images used in documentation or UI
+├── prompts/                  # Prompt templates used in evaluations
+├── questions/                # Evaluation or benchmark question sets
+├── rubrics/                  # Rubric files for scoring and evaluation
+├── specialist_questions/     # Specialist-specific question sets
+├── specialists/              # Specialist JSON configurations
+├── run.sh                    # Shell script to run the project
+├── requirements.txt          # Python dependencies
+├── Procfile                  # Deployment configuration (e.g., for Heroku)
+├── LICENSE                   # Project license
+└── README.md                 # Project documentation
+```
+
+## New Feature - Specialists for Domain-Specific Questions
+
+The Persona Gym benchmark now can use specialist functuons - with domain-specific questions to test the persona agent. To add a custom specialist, you may need to prepare a specialist .json file, a set of domain specific questions and a new rubrics:
+
+<img src="image/specialist.png" alt="Specialist" width="80%">
+
+#### Step 1: Add a specialist
+Create a specialist configuration as a `.json` file and save it in the `specialists/` folder.
+
+#### Step 2: Add domain-specific questions
+Create a list of domain-specific questions and save it in the `specialist_questions/` folder.
+
+#### Step 3: Add a domain-specific rubric
+Create a new domain-specific rubric and save it in the `rubrics/` folder.
+
 ## Run the code (command prompt)
 
 To run and test the Persona Agent in the command prompt, please use the following command:
@@ -59,7 +96,13 @@ Note that we also provide a static benchmark for testing a general LLM model, pl
 python main.py launch --static
 ```
 
-Please remember to set up your API keys properly.
+Please note the evaluation for one persona can take up to around 15 to 20 min for 10 questions per task. Also, remember to set up the OepnAI API key:
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+```
+
+Instead of setting env variables, you may also directly copy the key to `api.py`.
 
 ## Launch the AgentBeat controller 
 
@@ -70,3 +113,4 @@ agentbeats run_ctrl
 Once it’s running, you should see a local management page similar to the one shown below. From there, you can also access your agent through the proxy URL provided by the controller — for example, try checking whether `.well-known/agent-card.json` can be successfully fetched.
 
 ![Green Agent Host screenshot](image/green_agent_host.png "Green Agent Host")
+
