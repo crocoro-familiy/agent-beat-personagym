@@ -90,6 +90,9 @@ To run and test the Persona Agent in the command prompt, please use the followin
 ```bash
 python main.py launch
 ```
+
+We have provided 3 white agent examples (Refer to the final submission report) to test the dynamic benchmark. To use them for tests, just simply copy their persona description and replace the persona description in the white_agent_card.toml in the `white_agent/` folder.
+
 Note that we also provide a static benchmark for testing a general LLM model, please use the following to run static benchmark:
 
 ```bash
@@ -114,3 +117,12 @@ Once it’s running, you should see a local management page similar to the one s
 
 ![Green Agent Host screenshot](image/green_agent_host.png "Green Agent Host")
 
+In case you want to use the Green Agent and the static benchmark to test a general LLM model, please modify the `run.sh` with the following command:
+```
+python main.py green_static
+```
+Run the following command to start the controller again:
+```
+agentbeats run_ctrl
+```
+This time the Green Agent will use the static benchmark.
