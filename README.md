@@ -137,4 +137,4 @@ The agent card can be successfully fetched:
 
 ![Agent Card screenshot](image/agent_card_google.png "Agent Card")
 
-
+Now, we can use AgentBeat platform for agent assessment.
