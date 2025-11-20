@@ -99,7 +99,7 @@ Note that we also provide a static benchmark for testing a general LLM model, pl
 python main.py launch --static
 ```
 
-Please note the evaluation for one persona can take up to around 15 to 20 min for 10 questions per task. Also, remember to set up the OepnAI API key:
+Please note the evaluation for one persona can take up to around 15 to 20 min for 10 questions per task. Also, remember to set up the OepnAI API key or other LLM API keys:
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
