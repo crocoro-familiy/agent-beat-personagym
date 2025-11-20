@@ -10,6 +10,7 @@ import statistics
 from uuid import uuid4
 from pathlib import Path
 import os
+from urllib.parse import urlparse
 
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
@@ -160,7 +161,7 @@ class StaticGreenAgentExecutor(AgentExecutor):
                     all_persona_scores[persona] = persona_score
                     print(f"   ✅ Score: {persona_score:.2f}")
 
-                    # --- 📊 Update Task Accumulators (For the final breakdown) ---
+                    # Update Task Accumulators (For the final breakdown)
                     # We assume 'scores' keys correspond to default_tasks
                     for task_name in default_tasks:
                         if task_name in scores and isinstance(scores[task_name], dict):
@@ -175,7 +176,7 @@ class StaticGreenAgentExecutor(AgentExecutor):
             finally:
                 await shared_client.aclose()
 
-            # --- FINAL REPORT GENERATION ---
+            # FINAL REPORT GENERATION
             avg_benchmark_score = sum(all_persona_scores.values()) / len(all_persona_scores) if all_persona_scores else 0
             
             task_stats = {}
@@ -207,31 +208,75 @@ class StaticGreenAgentExecutor(AgentExecutor):
         """Required implementation for abstract method."""
         await event_queue.enqueue_event(new_agent_text_message("Cancellation not supported for static benchmark."))
         await event_queue.close()
-        
+
+def load_agent_card_toml(card_filename="green_agent_card.toml") -> dict:
+    card_path = AGENT_DIR / card_filename
+    if not card_path.exists():
+         raise FileNotFoundError(f"Cannot find {card_filename} in {AGENT_DIR}")
+    with open(card_path, "rb") as f:
+        return tomllib.load(f)
+
 def start_green_agent_static(host="0.0.0.0", port=9999):
     print(f"Starting STATIC Green Agent (Benchmark Mode)...")
     
-    card_path = AGENT_DIR / "green_agent_card.toml"
-    if not card_path.exists():
-         print(f"FATAL ERROR: green_agent_card.toml not found in {AGENT_DIR}")
-         return
+    try:
+        agent_card_toml = load_agent_card_toml()
 
-    with open(card_path, "rb") as f:
-        agent_card_toml = tomllib.load(f)
+        # --- 1) Start from function defaults ---
+        final_host = host
+        final_port = port
 
-    agent_card_toml["url"] = f"http://{host}:{port}/"
-    
-    request_handler = DefaultRequestHandler(
-        agent_executor=StaticGreenAgentExecutor(), 
-        task_store=InMemoryTaskStore(),
-    )
-    server = A2AStarletteApplication(
-        agent_card=AgentCard(**agent_card_toml),
-        http_handler=request_handler,
-    )
+        # --- 2) If card has URL, use that as a base ---
+        card_url = agent_card_toml.get("url")
+        if card_url:
+            parsed = urlparse(card_url)
+            if parsed.hostname:
+                final_host = parsed.hostname
+            if parsed.port:
+                final_port = parsed.port
 
-    print(f"Starting Static Server on {host}:{port}")
-    uvicorn.run(server.build(), host=host, port=port)
+        # --- 3) Card host/port fields override previous values (if present) ---
+        final_host = agent_card_toml.get("host", final_host)
+        final_port = agent_card_toml.get("port", final_port)
+
+        # --- 4) Environment variables override everything (for controller runs) ---
+        env_host = os.getenv("HOST")
+        env_port = os.getenv("AGENT_PORT")
+
+        if env_host:
+            print(f"[INFO] Using HOST from environment: {env_host}")
+            final_host = env_host
+
+        if env_port:
+            try:
+                final_port = int(env_port)
+                print(f"[INFO] Using AGENT_PORT from environment: {final_port}")
+            except ValueError:
+                print(f"[WARN] Invalid AGENT_PORT={env_port!r}, keeping {final_port}")
+
+        # --- 5) Keep the card in sync with what we will actually use ---
+        agent_card_toml["host"] = final_host
+        agent_card_toml["port"] = final_port
+        agent_card_toml["url"] = f"http://{final_host}:{final_port}/"
+        print(f"Agent Card loaded. URL set to {agent_card_toml['url']}")
+
+        request_handler = DefaultRequestHandler(
+            agent_executor=StaticGreenAgentExecutor(),
+            task_store=InMemoryTaskStore(),
+        )
+        server = A2AStarletteApplication(
+            agent_card=AgentCard(**agent_card_toml),
+            http_handler=request_handler,
+        )
+
+        print(f"Starting server on {final_host}:{final_port}")
+        uvicorn.run(server.build(), host=final_host, port=final_port)
+
+    except FileNotFoundError as e:
+        print(f"FATAL ERROR: {e}. Please ensure green_agent_card.toml exists.")
+    except Exception as e:
+        print(f"FATAL ERROR during startup: {e}")
+        traceback.print_exc()
 
 if __name__ == "__main__":
     start_green_agent_static()
