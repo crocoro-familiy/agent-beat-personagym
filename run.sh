@@ -1,5 +1,3 @@
-#!/bin/bash
-# Run your agent (adjust the command if it's not 'run')
+#!/usr/bin/env bash
 cd code
 python main.py green
-

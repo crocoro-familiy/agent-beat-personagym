@@ -63,7 +63,7 @@ project-root/
 ├── specialists/              # Specialist JSON configurations
 ├── run.sh                    # Shell script to run the project
 ├── requirements.txt          # Python dependencies
-├── Procfile                  # Deployment configuration (e.g., for Heroku)
+├── Procfile                  # Deployment configuration
 ├── LICENSE                   # Project license
 └── README.md                 # Project documentation
 ```
@@ -119,7 +119,7 @@ Once it’s running, you should see a local management page similar to the one s
 
 In case you want to use the Green Agent and the static benchmark to test a general LLM model, please modify the `run.sh` with the following command:
 ```
-python main.py green_static
+python main.py greenstatic
 ```
 Run the following command to start the controller again:
 ```

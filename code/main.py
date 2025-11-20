@@ -4,7 +4,7 @@ import typer
 import asyncio
 import sys
 from pathlib import Path
-
+    
 app = typer.Typer(help="PersonaGym Agent Beat - Run and evaluate persona agents.")
 
 @app.command()
@@ -15,8 +15,8 @@ def green():
     start_green_agent()
 
 @app.command()
-def green_static():
-    from green_agent import start_green_agent_static
+def greenstatic():
+    from green_agent_static import start_green_agent_static
     """Start the Green Agent (PersonaGym evaluator) server."""
     print("Starting Green Agent (Static)...")
     start_green_agent_static()
