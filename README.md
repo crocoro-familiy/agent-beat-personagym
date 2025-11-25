@@ -138,3 +138,7 @@ The agent card can be successfully fetched:
 ![Agent Card screenshot](image/agent_card_google.png "Agent Card")
 
 Now, we can use AgentBeat platform for agent assessment.
+
+![Green Agent Host AgentBeat](image/agentbeat_register.png "Green Agent Host AgentBeat")
+
+![Green Agent Host AgentBeat Info](image/agentbeat_register_status.png "Green Agent Host AgentBeat Info")
