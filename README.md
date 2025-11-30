@@ -129,7 +129,7 @@ This time the Green Agent will use the static benchmark.
 
 ## Deployment of the Agent to Google Server
 
-Following the instructions from the AgentBeats blog, we registered for a Google Cloud account and used it to host our green agent. The deployment was successful, and we received a public HTML URL:
+Following the instructions from the AgentBeats blog, we registered for a Google Cloud account with the use of Cloudflare and used it to host our green agent. The deployment was successful, and we received a public HTML URL:
 
 ![Green Agent Host screenshot](image/green_agent_host_google.png "Green Agent Host on Google Cloud")
 
@@ -141,3 +141,4 @@ Now, we can use AgentBeat platform for agent assessment.
 
 ![Green Agent Host AgentBeat](image/agentbeat_register.png "Green Agent Host AgentBeat")
 
+![Green Agent Host AgentBeat Status](image/agentbeat_register_status.png "Green Agent Host AgentBeat Status")
