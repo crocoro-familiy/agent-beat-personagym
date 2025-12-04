@@ -87,7 +87,7 @@ Create a new domain-specific rubric and save it in the `rubrics/` folder.
 
 The White Agent can now use a lightweight internal memory (a belief-state JSON file) that updates after each evaluation. A small “Scribe” module analyzes feedback and refines the agent’s behavioral rules, allowing it to adapt at test time and improve persona consistency without any fine-tuning. This makes the agent smarter over time and more aligned with PersonaGym’s scoring criteria.
 
-<img src="image/white_agent_framework.png" alt="White Agent" width="80%">
+<img src="image/white_agent_framework.png" alt="White Agent" width="60%">
 
 To further train the White Agent, please follow the below guidelines to set up the Green and White Agent servers (with domain or local host), then please modify the Agent URL in `train.py`:
 
