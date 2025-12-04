@@ -68,7 +68,7 @@ project-root/
 └── README.md                 # Project documentation
 ```
 
-## New Feature - Specialists for Domain-Specific Questions
+## New Feature 1- Specialists for Domain-Specific Questions
 
 The Persona Gym benchmark now can use specialist functuons - with domain-specific questions to test the persona agent. To add a custom specialist, you may need to prepare a specialist .json file, a set of domain specific questions and a new rubrics:
 
@@ -82,6 +82,20 @@ Create a list of domain-specific questions and save it in the `specialist_questi
 
 #### Step 3: Add a domain-specific rubric
 Create a new domain-specific rubric and save it in the `rubrics/` folder.
+
+## New Feature 2- White Agent with Internal Memory
+
+The White Agent can now use a lightweight internal memory (a belief-state JSON file) that updates after each evaluation. A small “Scribe” module analyzes feedback and refines the agent’s behavioral rules, allowing it to adapt at test time and improve persona consistency without any fine-tuning. This makes the agent smarter over time and more aligned with PersonaGym’s scoring criteria.
+
+<img src="image/white_agent_framework.png" alt="White Agent" width="80%">
+
+To further train the White Agent, please follow the below guidelines to set up the Green and White Agent servers (with domain or local host), then please modify the Agent URL in `train.py`:
+
+```
+GREEN_AGENT_URL = 'YOUR GREEN AGENT DOMAIN ADDRESS'
+WHITE_AGENT_URL = 'YOUR WHITE AGENT DOMAIN ADDRESS' 
+```
+NOTE: We already provided a trained White Agent in this repository. If you're not interested to test the training part, you may ignore this section. Please note that the training time can be quite long and you need to make sure you have enough API credits for using the LLM.  
 
 ## Run the code (command prompt)
 
@@ -107,7 +121,7 @@ export OPENAI_API_KEY="your_api_key_here"
 
 Instead of setting env variables, you may also directly copy the key to `api.py`.
 
-## Launch the AgentBeat controller 
+## Launch the AgentBeat controller (Green Agent)
 
 Run the following command to start the controller:
 ```
@@ -127,6 +141,26 @@ agentbeats run_ctrl
 ```
 This time the Green Agent will use the static benchmark.
 
+## Launch the AgentBeat controller (White Agent)
+Please repeat the above the procedures to set up the AgentBeat controller for the White Agent. The only difference is that we need to modify the `run.sh` with the following command:
+```
+python main.py white
+```
+Run the following command to start the controller again:
+```
+agentbeats run_ctrl
+```
+
+If you want to host the White Agent (with memory), please modify the `run.sh` with the following command:
+```
+python main.py mem_white
+```
+
+Similarly, to host the White Agent (static), please set:
+```
+python main.py whitestatic
+```
+
 ## Deployment of the Agent to Google Server
 
 Following the instructions from the AgentBeats blog, we registered for a Google Cloud account with the use of Cloudflare and used it to host our green agent. The deployment was successful, and we received a public HTML URL:
@@ -142,3 +176,13 @@ Now, we can use AgentBeat platform for agent assessment.
 ![Green Agent Host AgentBeat](image/agentbeat_register.png "Green Agent Host AgentBeat")
 
 ![Green Agent Host AgentBeat Status](image/agentbeat_register_status.png "Green Agent Host AgentBeat Status")
+
+Similarly, repeat the above procedures to host the White Agent in other domain and then we can start the agent assessment process:
+
+![AgentBeat Assessment](image/agent_beat_assessment.png "AgentBeat Assessment")
+
+![AgentBeat Green](image/agent_beat_green.png "AgentBeat Green")
+
+![AgentBeat White](image/agent_beat_white.png "AgentBeat White")
+
+![AgentBeat Complete](image/agent_beat_complete.png "AgentBeat Complete")

@@ -112,6 +112,9 @@ def start_white_agent(host="0.0.0.0", port=8001):
     print("Starting PersonaGym White Agent...")
     try:
         agent_card_toml = load_agent_card_toml()
+        dotenv.load_dotenv()
+
+        # Persona is required in metadata 
         try:
             persona = agent_card_toml["metadata"]["persona_description"]
         except KeyError:
@@ -119,13 +122,62 @@ def start_white_agent(host="0.0.0.0", port=8001):
                 f"CRITICAL: {CARD_FILENAME} MUST have [metadata] section "
                 "with a 'persona_description' key."
             )
+
+        # Start from function defaults 
+        final_host = host
+        final_port = port
+
+        # If card has URL, use that as a base 
+        card_url = agent_card_toml.get("url")
+        if card_url:
+            parsed = urlparse(card_url)
+            if parsed.hostname:
+                final_host = parsed.hostname
+            if parsed.port:
+                final_port = parsed.port
+
+        # Card host/port fields override previous values (if present) 
+        final_host = agent_card_toml.get("host", final_host)
+        final_port = agent_card_toml.get("port", final_port)
+
+        # Environment variables override everything 
+        env_host = os.getenv("HOST")
+        env_port = os.getenv("AGENT_PORT")
+
+        if env_host:
+            print(f"[INFO] Using HOST from environment: {env_host}")
+            final_host = env_host
+
+        if env_port:
+            try:
+                final_port = int(env_port)
+                print(f"[INFO] Using AGENT_PORT from environment: {final_port}")
+            except ValueError:
+                print(f"[WARN] Invalid AGENT_PORT={env_port!r}, keeping {final_port}")
+
+        # Keep the card in sync with what we will actually use 
+        agent_card_toml["host"] = final_host
+        agent_card_toml["port"] = final_port
+
+        env_agent_url = os.getenv("AGENT_URL")
+        if env_agent_url:
+            print(f"[INFO] Using AGENT_URL from environment: {env_agent_url}")
+            agent_card_toml["url"] = env_agent_url
+        else:
+            agent_card_toml["url"] = f"http://{final_host}:{final_port}/"
+            print("[INFO] Using INTERNAL_URL from AGENTCARD")
+
+        # Build the *public* card (no metadata) from the resolved config
         public_card_data = agent_card_toml.copy()
-        public_card_data.pop("metadata", None) 
+        public_card_data.pop("metadata", None)
         agent_card_for_public = AgentCard(**public_card_data)
-        host = public_card_data.get('host', host)
-        port = public_card_data.get('port', port)
-        agent_card_for_public.url = f'http://{host}:{port}/'
-        print(f"Agent Card loaded. Persona detected. URL set to {agent_card_for_public.url}")
+
+        print(
+            "Agent Card loaded. Persona detected. "
+            f"URL set to {agent_card_for_public.url}"
+        )
+
+        # Build executor and server app 
         agent_executor = WhiteAgentExecutor(persona=persona)
         request_handler = DefaultRequestHandler(
             agent_executor=agent_executor,
@@ -135,15 +187,18 @@ def start_white_agent(host="0.0.0.0", port=8001):
             agent_card=agent_card_for_public,
             http_handler=request_handler,
         )
+
         app = server_app.build()
         app.routes.append(Route("/profile", endpoint=get_profile, methods=["GET"]))
         print("Added custom /profile endpoint.")
-        print(f"Starting server on {host}:{port}")
-        uvicorn.run(app, host=host, port=port)
+
+        print(f"Starting server on {final_host}:{final_port}")
+        uvicorn.run(app, host=final_host, port=final_port)
+
     except FileNotFoundError as e:
         print(f"FATAL ERROR: {e}. Please ensure {CARD_FILENAME} exists.")
     except ValueError as e:
-         print(f"FATAL ERROR: Configuration error - {e}")
+        print(f"FATAL ERROR: Configuration error - {e}")
     except Exception as e:
         print(f"FATAL ERROR during startup: {e}")
         traceback.print_exc()

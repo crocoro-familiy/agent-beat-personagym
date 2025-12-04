@@ -222,6 +222,8 @@ def start_green_agent_static(host="0.0.0.0", port=9999):
     try:
         agent_card_toml = load_agent_card_toml()
 
+        dotenv.load_dotenv()
+
         # --- 1) Start from function defaults ---
         final_host = host
         final_port = port
@@ -257,7 +259,16 @@ def start_green_agent_static(host="0.0.0.0", port=9999):
         # --- 5) Keep the card in sync with what we will actually use ---
         agent_card_toml["host"] = final_host
         agent_card_toml["port"] = final_port
-        agent_card_toml["url"] = f"http://{final_host}:{final_port}/"
+        env_agent_url = os.getenv("AGENT_URL")
+        
+        if env_agent_url:
+            print(f"[INFO] Using AGENT_URL from environment: {env_agent_url}")
+            agent_card_toml["url"] = env_agent_url
+        else:
+            # Fallback: internal URL (useful for local manual runs)
+            agent_card_toml["url"] = f"http://{final_host}:{final_port}/"
+            print("[INFO] Using INTERNAL_URL from AGENTCARD")
+
         print(f"Agent Card loaded. URL set to {agent_card_toml['url']}")
 
         request_handler = DefaultRequestHandler(

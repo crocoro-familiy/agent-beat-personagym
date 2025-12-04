@@ -8,6 +8,8 @@ from uuid import uuid4
 from pathlib import Path
 import os
 import asyncio 
+from urllib.parse import urlparse
+
 
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
@@ -22,6 +24,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 
 AGENT_DIR = Path(__file__).parent
+MEMORY_FILE = AGENT_DIR / "white_agent_memory.json"
 CODE_DIR = AGENT_DIR.parent
 PROJECT_ROOT = CODE_DIR.parent
 dotenv.load_dotenv(PROJECT_ROOT / ".env") 
@@ -39,30 +42,75 @@ class WhiteAgent:
     def __init__(self, persona: str, question: str):
         self.persona = persona
         self.question = question
-        self.client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    
+    def _load_rubric_hypotheses(self) -> str:
+        """
+        Reads the hypothesis JSON and formats it into a System Prompt section.
+        """
+        # DEBUG: Print IMMEDIATELY upon entering function
+        print(f"DEBUG: Entering _load_rubric_hypotheses...", flush=True)
 
-    async def invoke(self) -> str:
+        if not MEMORY_FILE.exists():
+            print(f"⚠️ DEBUG: Memory file NOT found at: {MEMORY_FILE}", flush=True)
+            return "No grading criteria known yet. Be helpful."
+        
         try:
+            with open(MEMORY_FILE, "r") as f:
+                data = json.load(f)
+            
+            rubric_block = "=== INTERNAL GRADING CRITERIA (MAXIMIZE THESE) ===\n"
+            for task, hypothesis in data.items():
+                rubric_block += f"- {task}: {hypothesis}\n"
+            rubric_block += "=================================================="
+            
+            print(f"🧠 White Agent successfully loaded {len(data)} rules.", flush=True)
+            return rubric_block
+            
+        except Exception as e:
+            print(f"❌ DEBUG: Error reading JSON: {e}", flush=True)
+            return "Error reading grading criteria."
+
+    def invoke(self) -> str:
+        try:
+            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            
+            # Get the Rubric Block 
+            rubric_instructions = self._load_rubric_hypotheses()
+            
             system_prompt = (
-                f"You are acting as: {self.persona}. "
-                "You must answer the following question while staying strictly in character."
+                f"You are an AI Persona Actor.\n"
+                f"Assigned Persona: {self.persona}\n\n"
+                f"{rubric_instructions}\n\n"
+                f"INSTRUCTION:\n"
+                f"Answer the user's question acting strictly as the persona.\n"
+                f"Critically, you must ENSURE your answer satisfies the 'Internal Grading Criteria' above.\n"
+                f"If the criteria asks for 'Assertiveness', be assertive. If it asks for 'Manglish', use Manglish."
             )
-            completion = await self.client.chat.completions.create(
+            
+            # NOTE: Using gpt-4o is highly recommended here because it handles 
+            # complex instruction following (persona + multiple rubrics) much better than mini.
+            completion = client.chat.completions.create(
                 model="gpt-4o-mini", 
                 messages=[
-                    {"role": "system", "content": system_prompt},
+                    {"role": "system", "content": system_prompt}, 
                     {"role": "user", "content": self.question}
-                ]
+                ],
+                temperature=0.7 # Slight creativity for persona voice
             )
-            return completion.choices[0].message.content or "Error: Empty response from LLM."
+            return completion.choices[0].message.content
         except Exception as e:
-            print(f"ERROR calling OpenAI: {e}") 
             return f"Error calling OpenAI: {str(e)}"
 
 class WhiteAgentExecutor(AgentExecutor):
+    """The A2A wrapper for the white agent's logic."""
+    
+    # The constructor now takes ONLY the persona string.
     def __init__(self, persona: str):
+        if not persona or not isinstance(persona, str):
+            raise ValueError("A valid persona string must be provided to the executor.")
+        
         self.persona = persona
-        print(f"White Agent Executor Initialized. Persona: '{self.persona[:50]}...'")
+        print(f"White Agent Initialized. Persona: '{self.persona}'")
 
     async def execute(self, context: RequestContext, event_queue: EventQueue):
         try:
@@ -72,26 +120,19 @@ class WhiteAgentExecutor(AgentExecutor):
                 part_as_dict = incoming_message.parts[0].model_dump()
                 if part_as_dict.get('kind') == 'text':
                     question_text = part_as_dict.get('text')
-
             if not question_text:
-                error_msg = "Error: No question text was provided in the request."
+                error_msg = "Error: No question was provided in the request from the green agent."
+                print(f"White Agent: {error_msg}")
                 await event_queue.enqueue_event(new_agent_text_message(error_msg))
                 return
-
-            print(f"White Agent: Received question: '{question_text[:100]}...'")
-
-            agent_logic = WhiteAgent(persona=self.persona, question=question_text)
-            
-            print(f"White Agent: Awaiting response from OpenAI...")
-            result = await agent_logic.invoke()
-            
-            print(f"White Agent: Received answer. Sending: '{result[:100]}...'")
+            print(f"White Agent: Received question: '{question_text}'")
+            agent = WhiteAgent(persona=self.persona, question=question_text)
+            result = agent.invoke()
+            print(f"White Agent: Answer: '{result}'")
             await event_queue.enqueue_event(new_agent_text_message(result))
-
         except Exception as e:
             tb_str = traceback.format_exc()
-            error_message = f"WHITE AGENT CRASHED:\n{e}\n\nTRACEBACK:\n{tb_str}"
-            print(error_message)
+            error_message = f"WHITE AGENT CRASHED:\\n{e}\\n\\nTRACEBACK:\\n{tb_str}"
             await event_queue.enqueue_event(new_agent_text_message(error_message))
         finally:
             await event_queue.close()
@@ -108,13 +149,13 @@ async def get_profile(request):
         print(f"ERROR reading profile from TOML: {e}")
         return JSONResponse({"error": "Could not load agent profile."}, status_code=500)
 
-def start_white_agent(host="0.0.0.0", port=8001):
+def start_mem_white_agent(host="0.0.0.0", port=8001):
     print("Starting PersonaGym White Agent...")
     try:
         agent_card_toml = load_agent_card_toml()
         dotenv.load_dotenv()
 
-        # Persona is required in metadata
+        # Persona is required in metadata 
         try:
             persona = agent_card_toml["metadata"]["persona_description"]
         except KeyError:
@@ -203,5 +244,6 @@ def start_white_agent(host="0.0.0.0", port=8001):
         print(f"FATAL ERROR during startup: {e}")
         traceback.print_exc()
 
+
 if __name__ == "__main__":
-    start_white_agent()
+    start_mem_white_agent()

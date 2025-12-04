@@ -28,6 +28,19 @@ def white():
     print("Starting White Agent...")
     start_white_agent()
 
+@app.command()
+def whitestatic():
+    from white_agent_static import start_white_agent_static
+    """Start the White Agent (PersonaGym evaluator) server."""
+    print("Starting White Agent (Static)...")
+    start_white_agent_static()
+
+@app.command()
+def mem_white():
+    from mem_white_agent import start_mem_white_agent
+    """Start the White Agent (with Memory) server."""
+    print("Starting White Agent with Meomory...")
+    start_mem_white_agent()
 
 @app.command()
 def launch(static: bool = False):
